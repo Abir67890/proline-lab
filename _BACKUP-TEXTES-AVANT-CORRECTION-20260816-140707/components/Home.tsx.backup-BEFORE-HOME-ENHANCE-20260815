@@ -1,0 +1,1955 @@
+﻿"use client";
+
+import {
+  FormEvent,
+  useEffect,
+  useState,
+} from "react";
+
+import Catalogue from "./Catalogue";
+import SafeImage from "./SafeImage";
+
+import { IMAGES } from "@/lib/images";
+import { useSiteAnimations } from "@/lib/useSiteAnimations";
+
+import {
+  NoiseGrain,
+  AuroraBackground,
+  LightRays,
+} from "./effects/backgrounds";
+
+import { GradientText } from "./effects/text";
+
+import {
+  NumberRoll,
+  CircularProgress,
+} from "./effects/stats";
+
+import {
+  MasonryGallery,
+  BeforeAfterSlider,
+} from "./effects/gallery";
+
+import {
+  MorphingHamburger,
+  ScrollProgressBar,
+} from "./effects/navigation";
+
+import {
+  AnimatedCheckbox,
+  FloatingLabelInput,
+  ToastStack,
+  AccordionItem,
+} from "./effects/micro";
+
+
+/* =========================================================
+   TYPES
+========================================================= */
+
+type Toast = {
+  id: number;
+  text: string;
+};
+
+type Category = {
+  key:
+    | "cuisine"
+    | "machine"
+    | "buanderie"
+    | "sanitaire"
+    | "communs"
+    | "piscine";
+  n: string;
+  title: string;
+  short: string;
+  desc: string;
+  img: {
+    src: string;
+    fallback?: string;
+  };
+  tint: string;
+};
+
+
+/* =========================================================
+   CATÉGORIES
+========================================================= */
+
+const CATEGORIES: readonly Category[] = [
+  {
+    key: "cuisine",
+    n: "01",
+    title: "Cuisine & Restaurant",
+    short: "Cuisine",
+    desc:
+      "Dégraissage intensif, lavage et entretien des surfaces professionnelles.",
+    img: IMAGES.categories.cuisine,
+    tint: "rgba(120,150,174,.72)",
+  },
+
+  {
+    key: "machine",
+    n: "02",
+    title: "Machines automatiques",
+    short: "Machines",
+    desc:
+      "Solutions professionnelles pour lave-vaisselle et lave-verres.",
+    img: IMAGES.categories.machine,
+    tint: "rgba(95,175,200,.72)",
+  },
+
+  {
+    key: "buanderie",
+    n: "03",
+    title: "Buanderie",
+    short: "Buanderie",
+    desc:
+      "Lessives, détachants et solutions dédiées au linge professionnel.",
+    img: IMAGES.categories.buanderie,
+    tint: "rgba(105,199,227,.72)",
+  },
+
+  {
+    key: "sanitaire",
+    n: "04",
+    title: "Sanitaires",
+    short: "Sanitaire",
+    desc:
+      "Détartrage, nettoyage et entretien quotidien des sanitaires.",
+    img: IMAGES.categories.sanitaire,
+    tint: "rgba(137,155,200,.72)",
+  },
+
+  {
+    key: "communs",
+    n: "05",
+    title: "Espaces communs",
+    short: "Communs",
+    desc:
+      "Solutions pour sols, vitres, moquettes et surfaces collectives.",
+    img: IMAGES.categories.communs,
+    tint: "rgba(82,111,145,.72)",
+  },
+
+  {
+    key: "piscine",
+    n: "06",
+    title: "Piscine",
+    short: "Piscine",
+    desc:
+      "Solutions professionnelles pour l'entretien et le traitement des bassins.",
+    img: IMAGES.categories.piscine,
+    tint: "rgba(79,142,209,.72)",
+  },
+];
+
+
+/* =========================================================
+   AVANTAGES
+========================================================= */
+
+const ADVANTAGES = [
+  {
+    n: "01",
+    c: "#7896AE",
+    title: "Formulation laboratoire",
+    desc:
+      "Des solutions développées et contrôlées pour répondre aux exigences professionnelles.",
+  },
+
+  {
+    n: "02",
+    c: "#5FAFC8",
+    title: "Réactivité logistique",
+    desc:
+      "Une organisation pensée pour répondre rapidement aux besoins des établissements.",
+  },
+
+  {
+    n: "03",
+    c: "#69C7E3",
+    title: "Accompagnement terrain",
+    desc:
+      "Conseils d'utilisation, dosage et accompagnement adaptés aux réalités du terrain.",
+  },
+
+  {
+    n: "04",
+    c: "#899BC8",
+    title: "Documentation",
+    desc:
+      "Fiches techniques et informations de sécurité disponibles pour les références concernées.",
+  },
+
+  {
+    n: "05",
+    c: "#4F8ED1",
+    title: "Savoir-faire tunisien",
+    desc:
+      "Une expertise locale au plus près des besoins des professionnels en Tunisie.",
+  },
+];
+
+
+/* =========================================================
+   SERVICES
+========================================================= */
+
+const SERVICES = [
+  {
+    number: "01",
+    title: "Conseil & dosage",
+    description:
+      "Nous vous aidons à choisir le produit et le dosage adaptés à votre usage.",
+  },
+
+  {
+    number: "02",
+    title: "Accompagnement terrain",
+    description:
+      "Une approche orientée utilisation réelle, organisation et efficacité.",
+  },
+
+  {
+    number: "03",
+    title: "Solutions professionnelles",
+    description:
+      "Une gamme structurée autour des principaux environnements d'hygiène.",
+  },
+
+  {
+    number: "04",
+    title: "Suivi client",
+    description:
+      "Une relation directe avec les établissements et leurs besoins opérationnels.",
+  },
+];
+
+
+/* =========================================================
+   SECTEURS
+========================================================= */
+
+const SECTORS = [
+  "Hôtels",
+  "Restaurants",
+  "Cafés",
+  "Cliniques",
+  "Hôpitaux",
+  "Écoles",
+  "Entreprises de nettoyage",
+  "Collectivités",
+  "Spas & Fitness",
+  "Centres commerciaux",
+];
+
+
+/* =========================================================
+   COMPOSANT
+========================================================= */
+
+export default function Home() {
+  useSiteAnimations();
+
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterConsent, setNewsletterConsent] =
+    useState(false);
+  const [isSubmitting, setIsSubmitting] =
+    useState(false);
+
+
+  /* =======================================================
+     LOCK BODY WHEN MOBILE MENU IS OPEN
+  ======================================================= */
+
+  useEffect(() => {
+    if (mobileNavOpen) {
+      document.body.classList.add("menu-open");
+    } else {
+      document.body.classList.remove("menu-open");
+    }
+
+    return () => {
+      document.body.classList.remove("menu-open");
+    };
+  }, [mobileNavOpen]);
+
+
+  /* =======================================================
+     ESC → CLOSE MENU
+  ======================================================= */
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMobileNavOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown
+      );
+    };
+  }, []);
+
+
+  /* =======================================================
+     TOAST
+  ======================================================= */
+
+  function pushToast(text: string) {
+    const id = Date.now();
+
+    setToasts((items) => [
+      ...items,
+      {
+        id,
+        text,
+      },
+    ]);
+
+    window.setTimeout(() => {
+      setToasts((items) =>
+        items.filter((item) => item.id !== id)
+      );
+    }, 3200);
+  }
+
+
+  /* =======================================================
+     NEWSLETTER
+  ======================================================= */
+
+  function submitNewsletter(
+    event: FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+
+    const email = newsletterEmail.trim();
+
+    if (!email) {
+      pushToast(
+        "Veuillez saisir votre adresse email."
+      );
+      return;
+    }
+
+    const emailIsValid =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    if (!emailIsValid) {
+      pushToast(
+        "Merci d’indiquer une adresse email valide."
+      );
+      return;
+    }
+
+    if (!newsletterConsent) {
+      pushToast(
+        "Veuillez accepter l’inscription à la newsletter."
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    window.setTimeout(() => {
+      pushToast(
+        "Inscription confirmée — merci !"
+      );
+
+      setNewsletterEmail("");
+      setNewsletterConsent(false);
+      setIsSubmitting(false);
+    }, 500);
+  }
+
+
+  /* =======================================================
+     MOBILE NAV
+  ======================================================= */
+
+  function closeMobileNav() {
+    setMobileNavOpen(false);
+  }
+
+
+  return (
+    <>
+      {/* =================================================
+          GLOBAL EFFECTS
+      ================================================= */}
+
+      <div
+        id="loader"
+        aria-hidden="true"
+      >
+        <div className="blocks">
+          <i />
+          <i />
+          <i />
+          <i />
+        </div>
+
+        <div className="mark">
+          PROLINE LAB
+        </div>
+
+        <div className="bar">
+          <span />
+        </div>
+      </div>
+
+
+      <div
+        id="spotlight"
+        aria-hidden="true"
+      />
+
+
+      <NoiseGrain opacity={0.025} />
+
+
+      <ScrollProgressBar
+        color="var(--color-green-light)"
+      />
+
+
+      <ToastStack toasts={toasts} />
+
+
+      {/* =================================================
+          HEADER
+      ================================================= */}
+
+      <header id="site-header">
+
+        <a
+          href="#hero"
+          className="brand"
+          aria-label="Proline Lab — Accueil"
+          onClick={closeMobileNav}
+        >
+          <div className="blocks">
+            <i />
+            <i />
+            <i />
+            <i />
+          </div>
+
+          <div className="brand-text">
+            proline<span>lab</span>
+          </div>
+        </a>
+
+
+        <nav
+          className="links nav-mobile-hide"
+          id="nav-links"
+          aria-label="Navigation principale"
+        >
+          <a href="#categories">
+            Produits
+          </a>
+
+          <a href="#catalogue">
+            Catalogue
+          </a>
+
+          <a href="#process">
+            Laboratoire
+          </a>
+
+          <a href="#about">
+            Notre expertise
+          </a>
+
+          <a href="#cta-banner">
+            Contact
+          </a>
+
+          <span
+            id="nav-indicator"
+            aria-hidden="true"
+          />
+        </nav>
+
+
+        <a
+          href="mailto:prolinehygiene@gmail.com?subject=Demande%20de%20devis%20professionnel%20-%20Proline"
+          className="cta-pill magnetic"
+          onClick={closeMobileNav}
+        >
+          Demander un devis
+        </a>
+
+
+        <MorphingHamburger
+          open={mobileNavOpen}
+          onClick={() =>
+            setMobileNavOpen(
+              (open) => !open
+            )
+          }
+          className="nav-mobile-only"
+        />
+
+
+        {mobileNavOpen && (
+          <nav
+            className="mobile-nav"
+            aria-label="Navigation mobile"
+          >
+            <a
+              href="#categories"
+              onClick={closeMobileNav}
+            >
+              Produits
+            </a>
+
+            <a
+              href="#catalogue"
+              onClick={closeMobileNav}
+            >
+              Catalogue
+            </a>
+
+            <a
+              href="#process"
+              onClick={closeMobileNav}
+            >
+              Laboratoire
+            </a>
+
+            <a
+              href="#about"
+              onClick={closeMobileNav}
+            >
+              Notre expertise
+            </a>
+
+            <a
+              href="#advantages"
+              onClick={closeMobileNav}
+            >
+              Pourquoi Proline
+            </a>
+
+            <a
+              href="#faq"
+              onClick={closeMobileNav}
+            >
+              FAQ
+            </a>
+
+            <a
+              href="#cta-banner"
+              onClick={closeMobileNav}
+            >
+              Contact
+            </a>
+
+            <a
+              href="mailto:prolinehygiene@gmail.com?subject=Demande%20de%20devis%20professionnel%20-%20Proline"
+              className="mobile-nav-cta"
+              onClick={closeMobileNav}
+            >
+              Demander un devis →
+            </a>
+          </nav>
+        )}
+      </header>
+
+
+      {/* =================================================
+          HERO
+      ================================================= */}
+
+      <main>
+
+        <section
+          id="hero"
+          aria-labelledby="hero-title"
+        >
+          <AuroraBackground />
+          <LightRays />
+
+
+          <div
+            className="photo-frame"
+            data-parallax="0.25"
+          >
+            <video
+              className="hero-video"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster={IMAGES.hero.fallback}
+              aria-label="Présentation visuelle Proline Lab"
+            >
+              <source
+                src={IMAGES.actionVideo}
+                type="video/mp4"
+              />
+            </video>
+
+            <div className="tint" />
+          </div>
+
+
+          <div
+            className="layer-field"
+            id="layer-field"
+            aria-hidden="true"
+          >
+            <div
+              className="layer-block"
+              style={{
+                background:
+                  "var(--color-yellow)",
+                top: "20%",
+                left: "10%",
+              }}
+              data-depth="0.6"
+            />
+
+            <div
+              className="layer-block"
+              style={{
+                background:
+                  "var(--color-blue)",
+                top: "22%",
+                left: "80%",
+              }}
+              data-depth="0.45"
+            />
+
+            <div
+              className="layer-block"
+              style={{
+                background:
+                  "var(--color-green-light)",
+                top: "45%",
+                left: "6%",
+                width: 12,
+                height: 12,
+              }}
+              data-depth="0.85"
+            />
+          </div>
+
+
+          <div className="eyebrow">
+            Hygiène professionnelle · By Dr. Gamm
+          </div>
+
+
+          <h1
+            id="hero-title"
+            className="hero-headline"
+          >
+            <span className="word left">
+              PROLINE
+            </span>
+
+            <span className="word right">
+              HYGIENE
+            </span>
+          </h1>
+
+
+          <div className="hero-script">
+            <GradientText
+              colors={[
+                "#4F8ED1",
+                "#315F91",
+                "#8AA8C4",
+              ]}
+            >
+              by Dr. Gamm
+            </GradientText>
+          </div>
+
+
+          <div
+            className="hero-divider"
+            aria-hidden="true"
+          />
+
+
+          <p className="hero-sub">
+            Des solutions professionnelles conçues
+            pour les hôtels, restaurants et
+            établissements exigeants : efficacité
+            maîtrisée, utilisation adaptée et
+            résultats constants.
+          </p>
+
+
+          <div className="hero-ctas">
+
+            <a
+              href="#categories"
+              className="btn-solid magnetic"
+            >
+              Explorer la gamme
+            </a>
+
+            <a
+              href={IMAGES.catalogue}
+              download="Proline-Lab-Catalogue.pdf"
+              className="btn-outline magnetic"
+            >
+              Télécharger le catalogue
+            </a>
+
+          </div>
+
+
+          <div
+            className="badge-clean"
+            aria-label="98 pour cent de satisfaction"
+          >
+            <div className="ring">
+              <span className="pct">
+                98%
+              </span>
+            </div>
+
+            <div className="lbl">
+              SATISFACTION
+            </div>
+          </div>
+
+
+          <a
+            href="#stats"
+            className="scroll-cue"
+            aria-label="Découvrir la suite"
+          >
+            ↓
+          </a>
+
+        </section>
+
+
+        {/* =================================================
+            MARQUEE
+        ================================================= */}
+
+        <div
+          className="marquee-wrap"
+          aria-label="Secteurs professionnels"
+        >
+          <div className="marquee">
+            {[
+              ...SECTORS,
+              ...SECTORS,
+            ].map((item, index) => (
+              <span key={`${item}-${index}`}>
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+
+
+        {/* =================================================
+            CHIFFRES
+        ================================================= */}
+
+        <section
+          id="stats"
+          aria-labelledby="stats-title"
+        >
+          <div className="section-head reveal">
+
+            <div className="section-eyebrow">
+              Proline en chiffres
+            </div>
+
+            <h2
+              id="stats-title"
+              className="section-title"
+            >
+              La performance se mesure.
+            </h2>
+
+            <p className="section-sub">
+              Des solutions pensées pour les
+              contraintes réelles des
+              professionnels.
+            </p>
+
+          </div>
+
+
+          <div className="stats-grid">
+
+            <div className="stat reveal-3d">
+              <div className="num">
+                <NumberRoll value={100} />+
+              </div>
+
+              <div className="label">
+                Produits professionnels
+              </div>
+            </div>
+
+
+            <div className="stat reveal-3d">
+              <div className="num">
+                <NumberRoll value={1000} />+
+              </div>
+
+              <div className="label">
+                Clients
+              </div>
+            </div>
+
+
+            <div className="stat reveal-3d">
+              <div className="num">
+                98<span>%</span>
+              </div>
+
+              <div className="label">
+                Satisfaction
+              </div>
+            </div>
+
+
+            <div className="stat reveal-3d">
+              <div className="num">
+                24/48h
+              </div>
+
+              <div className="label">
+                Réactivité logistique
+              </div>
+            </div>
+
+          </div>
+
+
+          <div className="stats-extra">
+
+            <CircularProgress
+              percent={98}
+              color="#4F8ED1"
+            />
+
+            <div className="stats-extra-number">
+              <NumberRoll value={1000} />+
+            </div>
+
+          </div>
+        </section>
+
+
+        {/* =================================================
+            EXPERTISE
+        ================================================= */}
+
+        <section
+          id="about"
+          aria-labelledby="about-title"
+        >
+          <div className="about-wrap">
+
+            <div
+              className="photo-frame about-photo tilt-target"
+              data-parallax="0.12"
+            >
+              <SafeImage
+                src={IMAGES.about.src}
+                fallback={IMAGES.about.fallback}
+                alt="Entretien professionnel dans un établissement"
+              />
+
+              <div className="tint" />
+
+              <div className="about-floating-card">
+                <span>
+                  PROLINE LAB
+                </span>
+
+                <strong>
+                  L’hygiène
+                  <br />
+                  sans compromis.
+                </strong>
+              </div>
+            </div>
+
+
+            <div className="about-text reveal">
+
+              <div className="section-eyebrow">
+                Notre expertise
+              </div>
+
+              <h2
+                id="about-title"
+                className="section-title"
+              >
+                La propreté est notre
+                engagement.
+              </h2>
+
+              <p className="section-sub">
+                Un savoir-faire tunisien pensé
+                pour les environnements où
+                l'hygiène exige régularité,
+                efficacité et maîtrise.
+              </p>
+
+              <p className="section-sub">
+                Nos solutions accompagnent les
+                hôtels, restaurants, établissements
+                de santé, entreprises et
+                collectivités dans leurs opérations
+                quotidiennes.
+              </p>
+
+              <a
+                href="#catalogue"
+                className="btn-solid magnetic"
+              >
+                Découvrir nos solutions
+              </a>
+
+            </div>
+
+          </div>
+
+
+          <div className="values-grid">
+
+            {[
+              [
+                "01",
+                "Expertise locale",
+                "Une connaissance concrète des besoins professionnels en Tunisie.",
+              ],
+
+              [
+                "02",
+                "Performance",
+                "Des formules conçues pour les cadences et contraintes professionnelles.",
+              ],
+
+              [
+                "03",
+                "Accompagnement",
+                "Dosage, formation et conseil pour optimiser chaque utilisation.",
+              ],
+
+              [
+                "04",
+                "Qualité",
+                "Un contrôle continu du laboratoire jusqu'à la livraison.",
+              ],
+            ].map(
+              ([idx, title, desc]) => (
+                <div
+                  className="value-card reveal tilt-target"
+                  key={idx}
+                >
+                  <div className="idx">
+                    {idx}
+                  </div>
+
+                  <h3>
+                    {title}
+                  </h3>
+
+                  <p>
+                    {desc}
+                  </p>
+                </div>
+              )
+            )}
+
+          </div>
+        </section>
+
+
+        {/* =================================================
+            SERVICES
+        ================================================= */}
+
+        <section
+          id="services"
+          aria-labelledby="services-title"
+        >
+          <div className="section-head reveal">
+
+            <div className="section-eyebrow">
+              Notre accompagnement
+            </div>
+
+            <h2
+              id="services-title"
+              className="section-title"
+            >
+              Une solution ne se limite
+              <br />
+              pas à un produit.
+            </h2>
+
+            <p className="section-sub">
+              Nous pensons l'hygiène comme un
+              ensemble : produit, utilisation,
+              dosage et accompagnement.
+            </p>
+
+          </div>
+
+
+          <div className="services-grid">
+
+            {SERVICES.map((service) => (
+              <article
+                className="service-card reveal tilt-target"
+                key={service.number}
+              >
+                <span className="service-number">
+                  {service.number}
+                </span>
+
+                <h3>
+                  {service.title}
+                </h3>
+
+                <p>
+                  {service.description}
+                </p>
+
+                <span className="service-arrow">
+                  →
+                </span>
+              </article>
+            ))}
+
+          </div>
+        </section>
+
+
+        {/* =================================================
+            CATÉGORIES
+        ================================================= */}
+
+        <section
+          id="categories"
+          aria-labelledby="categories-title"
+        >
+          <div className="section-head reveal">
+
+            <div className="section-eyebrow">
+              La gamme Proline
+            </div>
+
+            <h2
+              id="categories-title"
+              className="section-title"
+            >
+              Six univers.
+              <br />
+              Une même exigence.
+            </h2>
+
+            <p className="section-sub">
+              Des solutions ciblées pour chaque
+              environnement professionnel.
+            </p>
+
+          </div>
+
+
+          <div className="cat-grid-banners">
+
+            {CATEGORIES.map(
+              (category) => (
+                <a
+                  className={`cat-banner reveal tilt-target ${category.key}`}
+                  data-category={category.key}
+                  href="#catalogue"
+                  key={category.key}
+                  aria-label={`Voir les produits ${category.title}`}
+                >
+
+                  <div
+                    className="photo-frame"
+                    data-parallax="0.08"
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      borderRadius: 26,
+                    }}
+                  >
+                    <SafeImage
+                      src={category.img.src}
+                      fallback={category.img.fallback}
+                      alt={category.title}
+                    />
+
+                    <div
+                      className="tint"
+                      style={{
+                        background: `
+                          linear-gradient(
+                            160deg,
+                            ${category.tint},
+                            rgba(7,31,56,.82)
+                          )
+                        `,
+                      }}
+                    />
+                  </div>
+
+
+                  <div className="category-visible">
+                    <span className="category-number">
+                      {category.n}
+                    </span>
+
+                    <span className="category-name">
+                      {category.short}
+                    </span>
+                  </div>
+
+
+                  <div
+                    className="arrow-badge"
+                    aria-hidden="true"
+                  >
+                    →
+                  </div>
+
+
+                  <div className="label">
+
+                    <div className="kicker">
+                      {category.n} · PROLINE LAB
+                    </div>
+
+                    <h3>
+                      {category.title}
+                    </h3>
+
+                    <p>
+                      {category.desc}
+                    </p>
+
+                    <span className="category-link">
+                      Explorer la catégorie →
+                    </span>
+
+                  </div>
+
+                </a>
+              )
+            )}
+
+          </div>
+        </section>
+
+
+        {/* =================================================
+            PRODUIT SIGNATURE
+        ================================================= */}
+
+        <section
+          id="spotlight-product"
+          aria-labelledby="spotlight-title"
+        >
+          <div className="spotlight-wrap">
+
+            <div
+              className="spotlight-visual tilt-target reveal"
+              id="spotlight-layer-field"
+            >
+
+              <div className="spotlight-glow" />
+
+
+              <SafeImage
+                src={IMAGES.productSpotlight.src}
+                fallback={
+                  IMAGES.productSpotlight.fallback
+                }
+                alt="Produit signature Proline Lab"
+                className="spotlight-bottle"
+              />
+
+
+              <div
+                className="layer-block spotlight-layer"
+                style={{
+                  background:
+                    "var(--color-green)",
+                  top: "12%",
+                  left: "8%",
+                }}
+              >
+                Nettoie
+              </div>
+
+
+              <div
+                className="layer-block spotlight-layer"
+                style={{
+                  background:
+                    "var(--color-blue)",
+                  top: "20%",
+                  right: "6%",
+                  left: "auto",
+                }}
+              >
+                Dégraisse
+              </div>
+
+
+              <div
+                className="layer-block spotlight-layer"
+                style={{
+                  background:
+                    "var(--color-yellow)",
+                  bottom: "22%",
+                  left: "4%",
+                  top: "auto",
+                }}
+              >
+                Détartre
+              </div>
+
+
+              <div
+                className="layer-block spotlight-layer"
+                style={{
+                  background:
+                    "var(--color-red)",
+                  bottom: "10%",
+                  right: "10%",
+                  top: "auto",
+                  left: "auto",
+                }}
+              >
+                Assainit
+              </div>
+
+            </div>
+
+
+            <div className="spotlight-text reveal-3d">
+
+              <div className="section-eyebrow">
+                Produit signature
+              </div>
+
+              <h2
+                id="spotlight-title"
+                className="section-title"
+              >
+                Une formule.
+                <br />
+                Plusieurs solutions.
+              </h2>
+
+              <p className="section-sub">
+                L’efficacité simplifiée, la
+                propreté maîtrisée. Une solution
+                polyvalente pensée pour les
+                exigences professionnelles.
+              </p>
+
+
+              <ul className="spotlight-list">
+
+                <li>
+                  Nettoie les vitres sans traces
+                </li>
+
+                <li>
+                  Dégraisse les surfaces
+                </li>
+
+                <li>
+                  Aide à éliminer les dépôts
+                </li>
+
+                <li>
+                  Assainit selon l'usage
+                </li>
+
+                <li>
+                  Fait briller les surfaces
+                </li>
+
+                <li>
+                  Adapté à différents usages
+                </li>
+
+              </ul>
+
+
+              <div className="spotlight-tags">
+                <span>
+                  Formule concentrée
+                </span>
+
+                <span>
+                  Usage professionnel
+                </span>
+
+                <span>
+                  Solution polyvalente
+                </span>
+              </div>
+
+
+              <a
+                href="#catalogue"
+                className="btn-solid magnetic"
+              >
+                Voir le catalogue
+              </a>
+
+            </div>
+
+          </div>
+        </section>
+
+
+        {/* =================================================
+            EXPÉRIENCE PRODUIT
+        ================================================= */}
+
+        <section
+          id="product-3d"
+          aria-labelledby="product-3d-title"
+        >
+          <div className="section-head reveal">
+
+            <div className="section-eyebrow">
+              Expérience produit
+            </div>
+
+            <h2
+              id="product-3d-title"
+              className="section-title"
+            >
+              Regardez. Explorez.
+              Comprenez.
+            </h2>
+
+            <p className="section-sub">
+              Une présentation immersive pour
+              découvrir l'univers produit.
+            </p>
+
+          </div>
+
+
+          <div className="explorer3d-stage">
+
+            <div
+              className="explorer3d-ring"
+              aria-hidden="true"
+            />
+
+
+            <div
+              className="explorer3d-frame"
+              id="explorer3d-frame"
+            >
+
+              <div className="explorer3d-badge">
+                <span className="dot" />
+
+                <span>
+                  Aperçu produit
+                </span>
+              </div>
+
+
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                aria-label="Présentation vidéo d'un produit Proline"
+              >
+                <source
+                  src="/videos/product-explorer.mp4"
+                  type="video/mp4"
+                />
+              </video>
+
+
+              <div
+                className="explorer3d-glare"
+                aria-hidden="true"
+              />
+
+              <div
+                className="explorer3d-edge"
+                aria-hidden="true"
+              />
+
+            </div>
+          </div>
+
+
+          <div className="explorer3d-hint reveal">
+            ↔ Déplacez la souris pour explorer
+          </div>
+
+        </section>
+
+
+        {/* =================================================
+            CATALOGUE
+        ================================================= */}
+
+        <Catalogue />
+
+
+        {/* =================================================
+            RÉSULTATS
+        ================================================= */}
+
+        <section
+          id="gallery-alt"
+          aria-labelledby="gallery-title"
+        >
+          <div className="section-head reveal">
+
+            <div className="section-eyebrow">
+              Résultats
+            </div>
+
+            <h2
+              id="gallery-title"
+              className="section-title"
+            >
+              La différence se voit.
+            </h2>
+
+            <p className="section-sub">
+              Découvrez visuellement l'univers
+              des solutions professionnelles
+              Proline Lab.
+            </p>
+
+          </div>
+
+
+          <BeforeAfterSlider
+            before={IMAGES.gallery[2].src}
+            after={IMAGES.gallery[1].src}
+            className="ba-demo"
+          />
+
+
+          <MasonryGallery
+            images={IMAGES.gallery}
+            columns={3}
+            className="masonry-demo"
+          />
+
+        </section>
+
+
+        {/* =================================================
+            AVANTAGES
+        ================================================= */}
+
+        <section
+          id="advantages"
+          aria-labelledby="advantages-title"
+        >
+          <div className="section-head reveal">
+
+            <div className="section-eyebrow">
+              Pourquoi Proline Lab
+            </div>
+
+            <h2
+              id="advantages-title"
+              className="section-title"
+            >
+              Plus qu’un produit.
+              <br />
+              Un partenaire.
+            </h2>
+
+            <p className="section-sub">
+              Notre valeur ne s’arrête pas au
+              produit.
+            </p>
+
+          </div>
+
+
+          <div className="hslide-pin">
+
+            <div
+              className="hslide-track"
+              id="hslide-track"
+            >
+
+              {ADVANTAGES.map(
+                (advantage) => (
+                  <div
+                    className="hslide-col tilt-target"
+                    style={
+                      {
+                        "--c":
+                          advantage.c,
+                      } as React.CSSProperties
+                    }
+                    key={advantage.n}
+                  >
+                    <span className="hslide-num">
+                      {advantage.n}
+                    </span>
+
+                    <h3>
+                      {advantage.title}
+                    </h3>
+
+                    <p>
+                      {advantage.desc}
+                    </p>
+                  </div>
+                )
+              )}
+
+            </div>
+          </div>
+        </section>
+
+
+        {/* =================================================
+            LABORATOIRE
+        ================================================= */}
+
+        <section
+          id="process"
+          aria-labelledby="process-title"
+        >
+          <div className="section-head reveal">
+
+            <div className="section-eyebrow">
+              Notre méthode
+            </div>
+
+            <h2
+              id="process-title"
+              className="section-title"
+            >
+              Du laboratoire
+              <br />
+              à votre établissement.
+            </h2>
+
+            <p className="section-sub">
+              Chaque solution suit un parcours
+              maîtrisé, de la formulation jusqu'au
+              terrain.
+            </p>
+
+          </div>
+
+
+          <div className="timeline">
+
+            <div
+              className="line-track"
+              aria-hidden="true"
+            />
+
+            <div
+              className="line-fill"
+              id="tl-fill"
+              aria-hidden="true"
+            />
+
+
+            {[
+              "Laboratoire",
+              "Recherche",
+              "Fabrication",
+              "Conditionnement",
+              "Livraison",
+              "Client",
+            ].map(
+              (label, index) => (
+                <div
+                  className="tl-node"
+                  key={label}
+                >
+                  <div className="dot">
+                    <span>
+                      {String(
+                        index + 1
+                      ).padStart(2, "0")}
+                    </span>
+                  </div>
+
+                  <div className="tl-label">
+                    {label}
+                  </div>
+                </div>
+              )
+            )}
+
+          </div>
+        </section>
+
+
+        {/* =================================================
+            FAQ
+        ================================================= */}
+
+        <section
+          id="faq"
+          aria-labelledby="faq-title"
+        >
+          <div className="section-head reveal">
+
+            <div className="section-eyebrow">
+              Questions fréquentes
+            </div>
+
+            <h2
+              id="faq-title"
+              className="section-title"
+            >
+              Les réponses essentielles.
+            </h2>
+
+          </div>
+
+
+          <div className="faq-list">
+
+            <AccordionItem
+              title="Livrez-vous partout en Tunisie ?"
+              defaultOpen
+            >
+              Nous proposons une organisation
+              logistique adaptée aux
+              établissements professionnels.
+            </AccordionItem>
+
+
+            <AccordionItem
+              title="Proposez-vous une formation à l’utilisation ?"
+            >
+              Oui. Nous pouvons accompagner les
+              équipes sur l'utilisation, le dosage
+              et les bonnes pratiques.
+            </AccordionItem>
+
+
+            <AccordionItem
+              title="Les fiches techniques sont-elles disponibles ?"
+            >
+              Oui. La documentation technique et
+              les informations de sécurité des
+              références concernées peuvent être
+              fournies sur demande.
+            </AccordionItem>
+
+
+            <AccordionItem
+              title="Comment obtenir un devis professionnel ?"
+            >
+              Contactez directement notre équipe
+              par email ou téléphone en précisant
+              votre établissement et vos besoins.
+            </AccordionItem>
+
+          </div>
+        </section>
+
+
+        {/* =================================================
+            CTA
+        ================================================= */}
+
+        <section
+          id="cta-banner"
+          className="photo-frame"
+          data-parallax="0.1"
+          aria-labelledby="cta-title"
+        >
+          <SafeImage
+            src={IMAGES.ctaBanner.src}
+            fallback={IMAGES.ctaBanner.fallback}
+            alt="Équipe d'entretien professionnel"
+          />
+
+          <div className="tint" />
+
+
+          <div className="cta-content">
+
+            <div className="section-eyebrow">
+              Parlons de votre établissement
+            </div>
+
+            <h2
+              id="cta-title"
+              className="reveal-3d"
+            >
+              Prêt à passer
+              <br />
+              à une hygiène plus maîtrisée ?
+            </h2>
+
+            <p className="reveal">
+              Recevez notre catalogue ou
+              échangez directement avec notre
+              équipe.
+            </p>
+
+
+            <div className="row reveal">
+
+              <a
+                href="mailto:prolinehygiene@gmail.com?subject=Demande%20de%20devis%20Proline"
+                className="btn-solid magnetic"
+              >
+                Demander un devis
+              </a>
+
+              <a
+                href={IMAGES.catalogue}
+                download="Proline-Lab-Catalogue.pdf"
+                className="btn-outline magnetic"
+              >
+                Télécharger le catalogue
+              </a>
+
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+
+
+      {/* =================================================
+          WHATSAPP
+      ================================================= */}
+
+      <a
+        href="https://wa.me/21653123976?text=Bonjour%20Proline%20Lab%2C%20je%20souhaite%20obtenir%20des%20informations."
+        className="proline-whatsapp"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Contacter Proline Lab sur WhatsApp"
+      >
+        <span aria-hidden="true">
+          WhatsApp
+        </span>
+      </a>
+
+
+      {/* =================================================
+          FOOTER
+      ================================================= */}
+
+      <footer>
+
+        <div className="footer-grid">
+
+          <div className="footer-main">
+
+            <div className="footer-logo">
+
+              <div className="blocks">
+                <i />
+                <i />
+                <i />
+                <i />
+              </div>
+
+              <div className="brand-text">
+                proline<span>lab</span>
+              </div>
+
+            </div>
+
+
+            <p>
+              Solutions professionnelles de
+              nettoyage et d’hygiène conçues
+              pour les établissements les plus
+              exigeants.
+            </p>
+
+
+            <form
+              className="newsletter"
+              onSubmit={submitNewsletter}
+              noValidate
+            >
+
+              <FloatingLabelInput
+                label="Votre email"
+                value={newsletterEmail}
+                onChange={setNewsletterEmail}
+                type="email"
+              />
+
+
+              <div className="newsletter-consent">
+
+                <AnimatedCheckbox
+                  checked={newsletterConsent}
+                  onChange={setNewsletterConsent}
+                />
+
+                <span>
+                  J’accepte de recevoir les
+                  actualités Proline Lab.
+                </span>
+
+              </div>
+
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                aria-label="S'inscrire à la newsletter"
+              >
+                {isSubmitting
+                  ? "..."
+                  : "→"}
+              </button>
+
+            </form>
+
+          </div>
+
+
+          <div>
+
+            <h4>
+              Produits
+            </h4>
+
+            <a href="#categories">
+              Cuisine & Restaurant
+            </a>
+
+            <a href="#categories">
+              Machines
+            </a>
+
+            <a href="#categories">
+              Buanderie
+            </a>
+
+            <a href="#categories">
+              Sanitaire
+            </a>
+
+            <a href="#categories">
+              Piscine
+            </a>
+
+          </div>
+
+
+          <div>
+
+            <h4>
+              Proline
+            </h4>
+
+            <a href="#about">
+              Notre expertise
+            </a>
+
+            <a href="#services">
+              Accompagnement
+            </a>
+
+            <a href="#process">
+              Laboratoire
+            </a>
+
+            <a href="#advantages">
+              Pourquoi nous
+            </a>
+
+            <a href="#faq">
+              FAQ
+            </a>
+
+          </div>
+
+
+          <div>
+
+            <h4>
+              Contact
+            </h4>
+
+            <a href="tel:+21653123976">
+              (+216) 53 123 976
+            </a>
+
+            <a href="mailto:prolinehygiene@gmail.com">
+              prolinehygiene@gmail.com
+            </a>
+
+            <span>
+              Sousse, Tunisie
+            </span>
+
+            <a
+              href="https://wa.me/21653123976"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp
+            </a>
+
+          </div>
+
+        </div>
+
+
+        <div className="footer-bottom">
+
+          <span>
+            © 2026 Proline Lab. Tous droits réservés.
+          </span>
+
+          <span>
+            Design par Abir
+          </span>
+
+        </div>
+
+      </footer>
+    </>
+  );
+}

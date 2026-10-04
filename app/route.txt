@@ -1,0 +1,261 @@
+import { NextResponse } from "next/server";
+import { readdir } from "node:fs/promises";
+import path from "node:path";
+
+const PRODUCT_DIR = path.join(process.cwd(), "public", "Produits");
+const MEDIA_DIR = path.join(process.cwd(), "public", "media");
+const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif"]);
+
+// -----------------------------------------------------------------------------
+// IMPORTANT DESIGN RULE
+// Do not show another brand's chemical bottle as if it were a Proline product.
+// Internet visuals are therefore contextual/application photos only.
+// Proline/local media always has priority.
+// -----------------------------------------------------------------------------
+
+const LOCAL_VISUALS = {
+  cuisine: [
+    "cuisine.jpg",
+    "cuisine fallback.jpg",
+  ],
+  machine: [
+    "machine automatique.jpg",
+    "machine automatique fallback.jpg",
+  ],
+  linge: [
+    "Petite buanderie.jpg",
+    "bauderie fallback.jpg",
+  ],
+  sanitaire: [
+    "sanitaires.jpg",
+    "sanitaires (2).jpg",
+    "sanitaires fallback.jpg",
+  ],
+  communs: [
+    "locaux commun.jpg",
+    "locaux commun fallback.jpg",
+  ],
+  piscine: [
+    "piscine.jpg",
+    "piscine fallback.jpg",
+  ],
+  hotel: [
+    "sugestão quarto Duvivier Anderson_Roman - Copie.jpg",
+    "Putzkorb für zuhause_ alles griffbereit für die schnelle Reinigung - Copie.jpg",
+  ],
+  vitre: [],
+} as const;
+
+// Curated context images from Wikimedia Commons. Their licenses/credits are
+// documented in the response and should also be copied to a site credits file
+// if these remote fallbacks are retained in production.
+const WEB_VISUALS = {
+  cuisine:
+    "https://upload.wikimedia.org/wikipedia/commons/3/30/EFTA00000303_-_Modern_kitchen_with_white_cabinets_stainless_steel_appliances_and_a_sink_area_equipped_with_dish_soap_and_a_drying_rack.jpg",
+  linge:
+    "https://upload.wikimedia.org/wikipedia/commons/c/c2/Laundry_detergents.jpg",
+  machine:
+    "https://upload.wikimedia.org/wikipedia/commons/2/2c/Washing_machines_in_hotel.jpg",
+  sanitaire:
+    "https://upload.wikimedia.org/wikipedia/commons/2/2a/Toilet_cleaning_supplies.jpg",
+  vitre:
+    "https://upload.wikimedia.org/wikipedia/commons/d/df/Window_cleaner_at_work.jpg",
+  piscine:
+    "https://upload.wikimedia.org/wikipedia/commons/f/f2/Phillip_Sparks%2C_a_maintenance_worker_with_the_U.S._Air_Force_12th_Services_Division%2C_skims_the_center_pool_in_preparation_for_the_summer_swimming_season_at_Randolph_Air_Force_Base%2C_Texas%2C_May_8%2C_2007_070508-F-LR258-122.jpg",
+} as const;
+
+const CATEGORY_RULES: Array<{ category: string; terms: string[] }> = [
+  {
+    category: "Cuisine",
+    terms: [
+      "degraissant cuisine", "degraissant plaque", "lave vaisselle",
+      "lave-verre", "lave verre", "rincage plaque", "rinçage plaque",
+    ],
+  },
+  {
+    category: "Linge",
+    terms: [
+      "anti tache", "anti-tache", "anti mousse", "anti-mousse", "assouplissant",
+      "gel blancheur", "gel couleur", "pro gel linge", "protiss", "parf linge",
+    ],
+  },
+  { category: "Piscine", terms: ["clear pool", "piscine", "pool"] },
+  { category: "Parfums", terms: ["parf moquette", "parfum pro", "parfum"] },
+  { category: "Hygiène", terms: ["lave mains", "sanitaire", "gel mains"] },
+  { category: "Entretien", terms: ["lave-vitre", "lave vitre", "marbre", "shine", "sticker", "degrissol", "tartro", "detqrtrino"] },
+];
+
+function normalize(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function classify(name: string) {
+  const hay = normalize(name);
+  for (const rule of CATEGORY_RULES) {
+    if (rule.terms.some((term) => hay.includes(normalize(term)))) return rule.category;
+  }
+
+  // These short product codes do not carry enough semantic information.
+  // Treat them as general professional products rather than inventing a use.
+  if (["3s", "dinol", "dinot pro", "dinot pro 1"].some((x) => hay === x || hay.startsWith(`${x} `))) {
+    return "Professionnel";
+  }
+  return "Professionnel";
+}
+
+function visualKind(name: string, category: string) {
+  const hay = normalize(name);
+
+  if (hay.includes("lave vaisselle") || hay.includes("lave verre") || hay.includes("lave-verre")) return "machine";
+  if (hay.includes("machine")) return "machine";
+  if (hay.includes("dinol") || hay.includes("dinot") || hay === "3s") return "communs";
+  if (hay.includes("degraissant plaque") || hay.includes("degraissant cuisine") || hay.includes("rincage plaque")) return "cuisine";
+  if (category === "Linge") return "linge";
+  if (category === "Piscine") return "piscine";
+  if (category === "Hygiène") return "sanitaire";
+  if (hay.includes("lave vitre") || hay.includes("lave-vitre")) return "vitre";
+  if (hay.includes("marbre") || hay.includes("shine") || hay.includes("sticker") || hay.includes("degrissol")) return "communs";
+  if (category === "Parfums") return "hotel";
+  if (category === "Entretien") return "communs";
+  return "hotel";
+}
+
+async function walk(dir: string): Promise<string[]> {
+  const result: string[] = [];
+  try {
+    const entries = await readdir(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const absolute = path.join(dir, entry.name);
+      if (entry.isDirectory()) result.push(...await walk(absolute));
+      else if (IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) result.push(absolute);
+    }
+  } catch {
+    // Missing media folder should not prevent product loading.
+  }
+  return result;
+}
+
+function toPublicPath(absolutePath: string) {
+  const relative = path
+    .relative(path.join(process.cwd(), "public"), absolutePath)
+    .split(path.sep)
+    .join("/");
+  return `/${encodeURI(relative).replace(/%2F/gi, "/")}`;
+}
+
+function stableIndex(value: string) {
+  return normalize(value)
+    .split("")
+    .reduce((total, char) => (total * 31 + char.charCodeAt(0)) >>> 0, 7);
+}
+
+function chooseLocal(
+  kind: keyof typeof LOCAL_VISUALS,
+  imageEntries: string[],
+  productName: string,
+) {
+  const candidates = LOCAL_VISUALS[kind];
+  const normalizedCandidates = new Map(
+    imageEntries.map((absolute) => [normalize(path.basename(absolute)), absolute]),
+  );
+
+  // Exact curated file first.
+  const exact = candidates
+    .map((name) => normalizedCandidates.get(normalize(name)))
+    .find(Boolean);
+  if (exact) return exact;
+
+  // Then allow recursive media matches by the visual-family filename keywords.
+  const familyTerms: Record<string, string[]> = {
+    cuisine: ["cuisine"],
+    machine: ["machine", "lave vaisselle"],
+    linge: ["buanderie", "bauderie", "linge"],
+    sanitaire: ["sanitaire"],
+    communs: ["locaux commun", "commun"],
+    piscine: ["piscine"],
+    hotel: ["chambre", "quarto", "room", "hotel", "nettoyage"],
+  };
+  const terms = familyTerms[kind] ?? [];
+  const ranked = imageEntries.filter((absolute) => {
+    const hay = normalize(absolute);
+    return terms.some((term) => hay.includes(normalize(term)));
+  });
+
+  if (!ranked.length) return null;
+  return ranked[stableIndex(productName) % ranked.length];
+}
+
+function webFallback(kind: keyof typeof WEB_VISUALS | "hotel" | "communs") {
+  if (kind in WEB_VISUALS) return WEB_VISUALS[kind as keyof typeof WEB_VISUALS];
+  return WEB_VISUALS.cuisine;
+}
+
+export async function GET() {
+  try {
+    const [pdfEntries, imageEntries] = await Promise.all([
+      readdir(PRODUCT_DIR, { withFileTypes: true }),
+      walk(MEDIA_DIR),
+    ]);
+
+    const images = imageEntries.sort((a, b) => a.localeCompare(b));
+
+    const products = pdfEntries
+      .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".pdf"))
+      .map((entry) => {
+        const name = entry.name.replace(/\.pdf$/i, "");
+        const category = classify(name);
+        const kind = visualKind(name, category) as keyof typeof LOCAL_VISUALS;
+        const local = chooseLocal(kind, images, name);
+
+        const hasWeb = (key: string): key is keyof typeof WEB_VISUALS => key in WEB_VISUALS;
+        const webKey =
+          kind === "vitre" ? "vitre" :
+          kind === "piscine" ? "piscine" :
+          kind === "linge" ? "linge" :
+          kind === "machine" ? "machine" :
+          kind === "sanitaire" ? "sanitaire" :
+          kind === "cuisine" ? "cuisine" :
+          "cuisine";
+
+        const photo = local ? toPublicPath(local) : hasWeb(webKey) ? WEB_VISUALS[webKey] : webFallback("cuisine");
+        const fallbackPhoto = hasWeb(webKey) ? WEB_VISUALS[webKey] : WEB_VISUALS.cuisine;
+
+        return {
+          id: normalize(name).replace(/\s+/g, "-") || crypto.randomUUID(),
+          name,
+          file: entry.name,
+          url: `/Produits/${encodeURIComponent(entry.name)}`,
+          category,
+          visualKind: kind,
+          photo,
+          fallbackPhoto,
+          photoAlt: `${name} — illustration d'application professionnelle ${category}`,
+          photoSource: local ? "local-category" : "web-category",
+        };
+      })
+      .sort((a, b) => a.name.localeCompare(b.name, "fr"));
+
+    return NextResponse.json(
+      {
+        products,
+        count: products.length,
+        localImages: images.length,
+        mediaRoot: "/media",
+        rule: "local-first-contextual-visuals",
+      },
+      { headers: { "Cache-Control": "no-store" } },
+    );
+  } catch (error) {
+    console.error("/api/products:", error);
+    return NextResponse.json(
+      { products: [], count: 0, localImages: 0, error: "Impossible de lire les produits." },
+      { status: 500 },
+    );
+  }
+}

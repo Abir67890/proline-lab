@@ -1,0 +1,147 @@
+"use client";
+import { useState } from "react";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { ChefHat, WashingMachine, Shirt, Droplets, Building2, Waves, Sparkles } from "lucide-react";
+import { PRODUCTS, CAT_LABELS, CAT_COLORS, type CategoryKey, type Product } from "@/lib/products";
+
+// ------------------------------------------------------------------
+// Correction (09/08/2026) : ce fichier définissait sa propre petite liste
+// de 6 produits en dur, déconnectée du vrai catalogue (30 références
+// réelles) qui existait déjà dans lib/products.ts sans jamais être
+// importé. L'original est conservé dans
+// _originaux_conserves/Catalogue.tsx.original — rien n'est supprimé.
+//
+// Bug d'affichage corrigé : les cartes avaient la classe CSS `reveal`
+// (opacity: 0 par défaut) mais lib/useSiteAnimations.ts excluait
+// explicitement `.product-card` de l'animation qui ramène l'opacité à 1
+// — aucune carte ne devenait donc jamais visible, ni à l'affichage
+// initial ni après changement de filtre. Remplacé ici par une animation
+// d'entrée/sortie Framer Motion pilotée par React, avec un vrai stagger
+// et une transition de sortie propre à chaque changement de filtre.
+// ------------------------------------------------------------------
+
+const CAT_ICONS: Record<CategoryKey, React.ComponentType<{ size?: number; strokeWidth?: number }>> = {
+  cuisine: ChefHat,
+  machine: WashingMachine,
+  buanderie: Shirt,
+  sanitaire: Droplets,
+  communs: Building2,
+  piscine: Waves,
+};
+
+type FilterKey = "all" | CategoryKey;
+const FILTERS: FilterKey[] = ["all", "cuisine", "machine", "buanderie", "sanitaire", "communs", "piscine"];
+
+export default function HomeCatalogueSection() {
+  const [filter, setFilter] = useState<FilterKey>("all");
+  const items = PRODUCTS.filter((p) => filter === "all" || p.cat === filter);
+
+  return (
+    <section id="catalogue">
+      <div className="section-head reveal">
+        <div className="section-eyebrow">Catalogue</div>
+        <h2 className="section-title">Le catalogue complet, produit par produit</h2>
+        <p className="section-sub">
+          {PRODUCTS.length} références — code, dosage et conditionnement. La fiche se retourne au survol.
+        </p>
+      </div>
+
+      <LayoutGroup id="cat-filters">
+        <div className="cat-filters">
+          {FILTERS.map((f) => {
+            const active = filter === f;
+            return (
+              <button
+                key={f}
+                className={`cat-filter-btn ${active ? "active" : ""}`}
+                onClick={() => setFilter(f)}
+                style={{ position: "relative", color: active ? "#fff" : undefined, overflow: "hidden" }}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="cat-filter-pill"
+                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "var(--color-green)",
+                      borderRadius: 999,
+                      zIndex: 0,
+                    }}
+                  />
+                )}
+                <span style={{ position: "relative", zIndex: 1 }}>
+                  {f === "all" ? "Tout voir" : CAT_LABELS[f]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </LayoutGroup>
+
+      <motion.div layout className="product-grid">
+        <AnimatePresence mode="popLayout">
+          {items.map((p, i) => {
+            const catColor = CAT_COLORS[p.cat];
+            const Icon = CAT_ICONS[p.cat];
+
+            return (
+              <motion.div
+                layout
+                key={`${p.code}-${p.ref}`}
+                className="product-card"
+                data-category={p.cat}
+                style={{ "--cat": catColor } as React.CSSProperties}
+                initial={{ opacity: 0, scale: 0.92, y: 16 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.45, delay: Math.min(i * 0.035, 0.4), ease: [0.16, 1, 0.3, 1] }}
+              >
+                <div className="card-inner">
+                  <div className="card-face front">
+                    <div
+                      className="pcard-icon"
+                      style={{ background: `color-mix(in srgb, ${catColor} 16%, transparent)`, color: catColor }}
+                    >
+                      <Icon size={20} strokeWidth={2.2} />
+                    </div>
+                    <div className="code">{p.code}</div>
+                    <div className="name">{p.name}</div>
+                    <div className="meta">
+                      <span>Réf. <b>{p.ref}</b></span>
+                      <span>{p.pack}</span>
+                    </div>
+                    <div className="desc">{p.desc}</div>
+                  </div>
+
+                  <div className="card-face back">
+                    <div className="lbl">
+                      <Sparkles size={13} strokeWidth={2.4} style={{ display: "inline", marginRight: 6, verticalAlign: -2 }} />
+                      Mode d&apos;emploi
+                    </div>
+                    <div className="dosage">{p.dosage}</div>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </motion.div>
+
+      <style jsx>{`
+        .pcard-icon {
+          width: 38px;
+          height: 38px;
+          border-radius: 11px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 10px;
+        }
+      `}</style>
+    </section>
+  );
+}
+
+export type { CategoryKey, Product };
+export { CAT_LABELS };

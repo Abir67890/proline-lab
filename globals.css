@@ -1,0 +1,25 @@
+:root {
+  --color-cat-cuisine: #2E8B68;
+  --color-cat-cuisine-light: #E8F6EF;
+  --color-cat-cuisine-dark: #1E6249;
+
+  --color-cat-machine: #287FB5;
+  --color-cat-machine-light: #EAF5FB;
+  --color-cat-machine-dark: #195B82;
+
+  --color-cat-buanderie: #8064B5;
+  --color-cat-buanderie-light: #F1ECF8;
+  --color-cat-buanderie-dark: #60478A;
+
+  --color-cat-sanitaire: #159A9C;
+  --color-cat-sanitaire-light: #E5F7F7;
+  --color-cat-sanitaire-dark: #087174;
+
+  --color-cat-communs: #526F82;
+  --color-cat-communs-light: #EDF3F6;
+  --color-cat-communs-dark: #344D5D;
+
+  --color-cat-piscine: #168FBC;
+  --color-cat-piscine-light: #E6F7FC;
+  --color-cat-piscine-dark: #0B6689;
+}

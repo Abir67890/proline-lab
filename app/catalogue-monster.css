@@ -1,0 +1,2770 @@
+﻿/* ============================================================
+   PROLINE CATALOGUE MONSTER
+   Advanced CSS / 3D / Glass / Responsive
+   ============================================================ */
+
+@property --catalogue-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@property --catalogue-glow {
+  syntax: "<number>";
+  initial-value: 0.35;
+  inherits: false;
+}
+
+:root {
+  --catalogue-bg: #061a2d;
+  --catalogue-bg-2: #0B2745;
+  --catalogue-surface: rgba(255,255,255,.055);
+  --catalogue-surface-strong: rgba(255,255,255,.085);
+  --catalogue-border: rgba(255,255,255,.13);
+  --catalogue-text: #f3f8fc;
+  --catalogue-muted: rgba(243,248,252,.64);
+  --catalogue-blue: #2B9FD8;
+  --catalogue-cyan: #69c7e3;
+  --catalogue-light: #8FE3DE;
+}
+
+/* ============================================================
+   MAIN
+   ============================================================ */
+
+.catalogue-monster {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(70px, 9vw, 150px) clamp(18px, 5vw, 80px);
+  color: var(--catalogue-text);
+  background:
+    radial-gradient(
+      circle at 75% 15%,
+      rgba(79,142,209,.19),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 10% 75%,
+      rgba(105,199,227,.11),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      var(--catalogue-bg),
+      var(--catalogue-bg-2)
+    );
+}
+
+.catalogue-monster::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .45;
+  background-image:
+    linear-gradient(
+      rgba(255,255,255,.025) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,.025) 1px,
+      transparent 1px
+    );
+  background-size: 70px 70px;
+  mask-image: linear-gradient(
+    to bottom,
+    black,
+    transparent 80%
+  );
+}
+
+.catalogue-monster-noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .06;
+  z-index: -1;
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.catalogue-monster-header {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(380px, .9fr);
+  gap: clamp(30px, 5vw, 90px);
+  align-items: center;
+  max-width: 1450px;
+  margin: 0 auto clamp(60px, 8vw, 110px);
+}
+
+.catalogue-monster-copy {
+  position: relative;
+  z-index: 3;
+}
+
+.catalogue-monster-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 11px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--catalogue-cyan);
+}
+
+.catalogue-monster-eyebrow i {
+  width: 32px;
+  height: 1px;
+  background: currentColor;
+  box-shadow: 0 0 14px currentColor;
+}
+
+.catalogue-monster h2 {
+  max-width: 850px;
+  margin: 0;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: clamp(42px, 6vw, 88px);
+  line-height: .94;
+  letter-spacing: -.055em;
+  font-weight: 600;
+}
+
+.catalogue-monster h2 em {
+  font-family: var(--font-fraunces), serif;
+  font-weight: 300;
+  color: var(--catalogue-light);
+}
+
+.catalogue-monster-copy > p {
+  max-width: 590px;
+  margin: 28px 0 0;
+  color: var(--catalogue-muted);
+  font-size: clamp(15px, 1.2vw, 18px);
+  line-height: 1.7;
+}
+
+/* ============================================================
+   3D CANVAS
+   ============================================================ */
+
+.catalogue-3d-shell {
+  position: relative;
+  min-height: clamp(390px, 40vw, 590px);
+  border: 1px solid var(--catalogue-border);
+  border-radius: 38px;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.075),
+      rgba(255,255,255,.015)
+    );
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.12),
+    0 35px 100px rgba(0,0,0,.28);
+  backdrop-filter: blur(18px);
+}
+
+.catalogue-3d-shell canvas {
+  position: absolute !important;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.catalogue-3d-shell::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+  border: 1px solid rgba(255,255,255,.06);
+}
+
+.catalogue-3d-shell::after {
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  right: -90px;
+  bottom: -100px;
+  border-radius: 50%;
+  background: rgba(79,142,209,.28);
+  filter: blur(70px);
+  pointer-events: none;
+}
+
+.catalogue-3d-glow {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: .3;
+  pointer-events: none;
+}
+
+.catalogue-3d-glow-one {
+  top: -70px;
+  left: -70px;
+  background: #2B9FD8;
+}
+
+.catalogue-3d-glow-two {
+  right: 10%;
+  bottom: 0;
+  background: #69c7e3;
+}
+
+.catalogue-3d-overlay {
+  position: absolute;
+  z-index: 5;
+  left: 28px;
+  right: 28px;
+  bottom: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  pointer-events: none;
+}
+
+.catalogue-3d-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 9px;
+  letter-spacing: .18em;
+  color: rgba(255,255,255,.65);
+}
+
+.catalogue-3d-status i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #69c7e3;
+  box-shadow: 0 0 12px #69c7e3;
+  animation: cataloguePulse 1.8s ease-in-out infinite;
+}
+
+.catalogue-3d-overlay strong {
+  font-size: clamp(20px, 2vw, 30px);
+  letter-spacing: .12em;
+}
+
+.catalogue-3d-caption {
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 8px;
+  letter-spacing: .16em;
+  color: rgba(255,255,255,.42);
+}
+
+/* ============================================================
+   STATS
+   ============================================================ */
+
+.catalogue-monster-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 45px;
+}
+
+.catalogue-monster-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.catalogue-monster-stats strong {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 27px;
+}
+
+.catalogue-monster-stats span {
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 8px;
+  letter-spacing: .15em;
+  color: var(--catalogue-muted);
+}
+
+/* ============================================================
+   FILTERS
+   ============================================================ */
+
+.catalogue-monster-controls {
+  max-width: 1450px;
+  margin: 0 auto 45px;
+}
+
+.catalogue-filter-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.catalogue-filter-label span {
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--catalogue-muted);
+}
+
+.catalogue-filter-label strong {
+  font-size: 14px;
+}
+
+.monster-filters {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.monster-filters .cat-filter-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 46px;
+  padding: 0 15px 0 17px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px;
+  color: rgba(255,255,255,.65);
+  background: rgba(255,255,255,.035);
+  backdrop-filter: blur(12px);
+  transition:
+    transform .3s cubic-bezier(.16,1,.3,1),
+    background .3s ease,
+    border-color .3s ease,
+    color .3s ease;
+}
+
+.monster-filters .cat-filter-btn small {
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 8px;
+  opacity: .5;
+}
+
+.monster-filters .cat-filter-btn:hover {
+  transform: translateY(-3px);
+  color: white;
+  border-color: rgba(255,255,255,.3);
+  background: rgba(255,255,255,.08);
+}
+
+.monster-filters .cat-filter-btn.active {
+  color: white;
+  border-color: rgba(105,199,227,.5);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(79,142,209,.38),
+      rgba(105,199,227,.14)
+    );
+  box-shadow:
+    0 0 35px rgba(79,142,209,.12),
+    inset 0 1px rgba(255,255,255,.18);
+}
+
+/* ============================================================
+   PRODUCT GRID
+   ============================================================ */
+
+.monster-product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(14px, 1.8vw, 25px);
+  max-width: 1450px;
+  margin: 0 auto;
+}
+
+.monster-product {
+  --mx: 50%;
+  --my: 50%;
+  min-height: 450px;
+  perspective: 1600px;
+  cursor: pointer;
+  outline: none;
+  animation: catalogueCardIn .8s cubic-bezier(.16,1,.3,1) both;
+  animation-delay: var(--delay);
+}
+
+.monster-product:focus-visible {
+  outline: 2px solid var(--catalogue-cyan);
+  outline-offset: 6px;
+  border-radius: 28px;
+}
+
+.monster-product-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 450px;
+  transform-style: preserve-3d;
+  transition: transform .85s cubic-bezier(.16,1,.3,1);
+}
+
+.monster-product.is-flipped .monster-product-inner {
+  transform: rotateY(180deg);
+}
+
+.monster-product-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 450px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 28px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.075),
+      rgba(255,255,255,.025)
+    );
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.1),
+    0 25px 70px rgba(0,0,0,.2);
+  backdrop-filter: blur(18px);
+}
+
+.monster-product-face::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      280px circle at var(--mx) var(--my),
+      rgba(255,255,255,.11),
+      transparent 55%
+    );
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+
+.monster-product.is-hovered .monster-product-face::before {
+  opacity: 1;
+}
+
+.monster-product-front {
+  transform: translateZ(1px);
+}
+
+.monster-product-back {
+  transform: rotateY(180deg);
+  padding: 35px;
+  justify-content: center;
+  background:
+    radial-gradient(
+      circle at 75% 20%,
+      rgba(79,142,209,.25),
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(11,39,69,.96),
+      rgba(7,29,51,.98)
+    );
+}
+
+.monster-product-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 23px 24px 0;
+}
+
+.monster-product-code,
+.monster-product-category {
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 8px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.monster-product-code {
+  color: var(--catalogue-cyan);
+}
+
+.monster-product-category {
+  color: rgba(255,255,255,.4);
+}
+
+.monster-product-orb {
+  position: absolute;
+  top: 65px;
+  right: 28px;
+  width: 105px;
+  height: 105px;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      rgba(255,255,255,.8),
+      rgba(105,199,227,.25) 15%,
+      rgba(79,142,209,.13) 45%,
+      transparent 68%
+    );
+  filter: blur(.2px);
+  box-shadow:
+    0 0 45px rgba(79,142,209,.24);
+  opacity: .75;
+}
+
+.monster-product-orb::before,
+.monster-product-orb::after,
+.monster-product-orb span {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 50%;
+  transform: rotate(30deg);
+}
+
+.monster-product-orb::after {
+  transform: rotate(120deg) scale(.78);
+}
+
+.monster-product-orb span {
+  transform: rotate(70deg) scale(.58);
+}
+
+.monster-product-content {
+  position: relative;
+  z-index: 2;
+  padding: 85px 25px 20px;
+}
+
+.monster-product-kicker {
+  display: block;
+  margin-bottom: 10px;
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 8px;
+  letter-spacing: .18em;
+  color: var(--catalogue-muted);
+}
+
+.monster-product-content h3 {
+  max-width: 75%;
+  margin: 0;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: clamp(23px, 2.1vw, 32px);
+  line-height: 1.02;
+  letter-spacing: -.035em;
+}
+
+.monster-product-content p {
+  max-width: 90%;
+  margin: 18px 0 0;
+  color: rgba(255,255,255,.56);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.monster-product-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: auto;
+  padding: 0 25px 22px;
+}
+
+.monster-product-meta div {
+  min-height: 70px;
+  padding: 13px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 15px;
+  background: rgba(255,255,255,.035);
+}
+
+.monster-product-meta small,
+.monster-back-info span,
+.monster-dosage span {
+  display: block;
+  margin-bottom: 7px;
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 7px;
+  letter-spacing: .15em;
+  color: rgba(255,255,255,.38);
+}
+
+.monster-product-meta strong {
+  font-size: 11px;
+}
+
+.monster-product-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 25px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 7px;
+  letter-spacing: .14em;
+  color: rgba(255,255,255,.4);
+}
+
+.monster-product-footer b {
+  font-size: 16px;
+  color: var(--catalogue-cyan);
+  transition: transform .3s ease;
+}
+
+.monster-product:hover .monster-product-footer b {
+  transform: translate(4px, -4px);
+}
+
+/* ============================================================
+   BACK
+   ============================================================ */
+
+.monster-product-back h3 {
+  margin: 0 0 35px;
+  font-family: var(--font-fraunces), serif;
+  font-size: clamp(32px, 3vw, 50px);
+  font-weight: 300;
+}
+
+.monster-dosage {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 25px;
+  padding: 20px;
+  border: 1px solid rgba(105,199,227,.22);
+  border-radius: 18px;
+  background: rgba(105,199,227,.07);
+}
+
+.monster-dosage strong {
+  display: block;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.monster-back-info {
+  position: relative;
+  z-index: 2;
+  padding: 13px 0;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.monster-back-info strong {
+  font-size: 13px;
+}
+
+.monster-return {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 25px;
+  padding: 13px 17px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 999px;
+  color: white;
+  background: rgba(255,255,255,.06);
+  cursor: pointer;
+  transition: .3s ease;
+}
+
+.monster-return:hover {
+  background: rgba(255,255,255,.12);
+  transform: translateY(-2px);
+}
+
+.monster-back-grid {
+  position: absolute;
+  inset: 0;
+  opacity: .2;
+  background-image:
+    linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+  background-size: 35px 35px;
+  mask-image: linear-gradient(to bottom, black, transparent);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.catalogue-monster-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 1450px;
+  margin: 55px auto 0;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255,255,255,.1);
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 8px;
+  letter-spacing: .14em;
+  color: rgba(255,255,255,.35);
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+@keyframes cataloguePulse {
+  0%, 100% {
+    opacity: .4;
+    transform: scale(.8);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+
+@keyframes catalogueCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1050px) {
+  .catalogue-monster-header {
+    grid-template-columns: 1fr;
+  }
+
+  .catalogue-3d-shell {
+    min-height: 470px;
+  }
+
+  .monster-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .catalogue-monster {
+    padding:
+      70px 15px
+      80px;
+  }
+
+  .catalogue-monster-header {
+    gap: 35px;
+  }
+
+  .catalogue-monster h2 {
+    font-size: clamp(40px, 13vw, 64px);
+  }
+
+  .catalogue-3d-shell {
+    min-height: 390px;
+    border-radius: 26px;
+  }
+
+  .monster-product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .monster-product,
+  .monster-product-inner,
+  .monster-product-face {
+    min-height: 420px;
+  }
+
+  .catalogue-monster-stats {
+    gap: 20px;
+  }
+
+  .catalogue-filter-label {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .monster-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .monster-filters .cat-filter-btn {
+    width: 100%;
+  }
+
+  .catalogue-monster-bottom {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .monster-product {
+    animation: none;
+  }
+
+  .catalogue-3d-status i {
+    animation: none;
+  }
+
+  .monster-product-inner {
+    transition: none;
+  }
+}
+
+
+ /* PROLINE CATALOGUE - READABILITY */
+.catalogue,
+.catalogue * {
+  --catalogue-text: #0B2745;
+  --catalogue-text-secondary: #145A8D;
+  --catalogue-accent: #008F8A;
+}
+
+.catalogue h1,
+.catalogue h2,
+.catalogue h3,
+.catalogue h4,
+.catalogue h5,
+.catalogue h6 {
+  color: #0B2745 !important;
+}
+
+.catalogue p,
+.catalogue span,
+.catalogue label {
+  color: #145A8D;
+}
+
+.catalogue [class*="ref"],
+.catalogue [class*="Ref"],
+.catalogue [class*="reference"],
+.catalogue [class*="Reference"] {
+  color: #145A8D !important;
+  opacity: 1 !important;
+}
+
+.catalogue [class*="price"],
+.catalogue [class*="Price"] {
+  color: #008F8A !important;
+  opacity: 1 !important;
+}
+
+.catalogue button {
+  color: #FFFFFF;
+}
+
+.catalogue input,
+.catalogue select,
+.catalogue textarea {
+  color: #0B2745;
+  background-color: #FFFFFF;
+}
+
+.catalogue ::placeholder {
+  color: #5B7890;
+  opacity: 1;
+}
+
+/* =========================================================
+   PROLINE CATALOGUE — FINAL TEXT CONTRAST FIX
+   Keeps the original design / only improves readability
+   ========================================================= */
+
+/* Main catalogue text */
+.monster-product-inner {
+  color: #073B4C;
+}
+
+/* Product title */
+.monster-product-content h1,
+.monster-product-content h2,
+.monster-product-content h3,
+.monster-product-content h4,
+.monster-product-content h5,
+.monster-product-content h6 {
+  color: #073B4C !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+/* Product description */
+.monster-product-content p {
+  color: #164E63 !important;
+  opacity: 1 !important;
+}
+
+/* Product metadata */
+.monster-product-meta,
+.monster-product-meta div,
+.monster-product-meta span {
+  color: #164E63 !important;
+  opacity: 1 !important;
+}
+
+/* Reference / product code */
+.monster-product-meta strong,
+.monster-product-meta b {
+  color: #075985 !important;
+  opacity: 1 !important;
+  font-weight: 800 !important;
+}
+
+/* Top labels */
+.monster-product-top,
+.monster-product-top span,
+.monster-product-top small {
+  color: #075985 !important;
+  opacity: 1 !important;
+}
+
+/* Dosage */
+.monster-dosage,
+.monster-dosage span,
+.monster-dosage p,
+.monster-dosage strong {
+  color: #075985 !important;
+  opacity: 1 !important;
+}
+
+/* Back side */
+.monster-product-back {
+  color: #073B4C !important;
+}
+
+/* Back information */
+.monster-back-info,
+.monster-back-info div,
+.monster-back-info p,
+.monster-back-info span,
+.monster-back-info strong {
+  color: #164E63 !important;
+  opacity: 1 !important;
+}
+
+/* Footer */
+.monster-product-footer,
+.monster-product-footer div,
+.monster-product-footer span,
+.monster-product-footer p {
+  color: #164E63 !important;
+  opacity: 1 !important;
+}
+
+/* Cyan labels stay cyan but become readable */
+.monster-product-inner .catalogue-cyan,
+.monster-product-inner [class*="cyan"] {
+  color: #087F8C !important;
+  opacity: 1 !important;
+}
+
+/* Generic muted text inside product cards */
+.monster-product-inner .muted,
+.monster-product-inner [class*="muted"] {
+  color: #416575 !important;
+  opacity: 1 !important;
+}
+
+/* Remove pale white text from readable content */
+.monster-product-content [style*="color"],
+.monster-product-meta [style*="color"],
+.monster-back-info [style*="color"] {
+  opacity: 1 !important;
+}
+
+/* Important information */
+.monster-product-inner strong,
+.monster-product-inner b {
+  color: #073B4C !important;
+  opacity: 1 !important;
+}
+
+/* Links */
+.monster-product-inner a {
+  color: #075985 !important;
+  opacity: 1 !important;
+}
+
+.monster-product-inner a:hover {
+  color: #0E7490 !important;
+}
+
+/* Inputs */
+.monster-product-inner input,
+.monster-product-inner select,
+.monster-product-inner textarea {
+  color: #073B4C !important;
+  background: #FFFFFF !important;
+}
+
+.monster-product-inner input::placeholder,
+.monster-product-inner textarea::placeholder {
+  color: #527384 !important;
+  opacity: 1 !important;
+}
+
+/* =========================================================
+   HIGH CONTRAST VARIABLES
+   ========================================================= */
+
+:root {
+  --catalogue-text: #073B4C;
+  --catalogue-text-secondary: #164E63;
+  --catalogue-muted: #416575;
+  --catalogue-reference: #075985;
+  --catalogue-cyan: #087F8C;
+  --catalogue-light: #FFFFFF;
+}
+
+
+/* =========================================================
+   PROLINE CATALOGUE — FINAL TEXT CONTRAST FIX
+   Keeps the original design / only improves readability
+   ========================================================= */
+
+/* Main catalogue text */
+.monster-product-inner {
+  color: #073B4C;
+}
+
+/* Product title */
+.monster-product-content h1,
+.monster-product-content h2,
+.monster-product-content h3,
+.monster-product-content h4,
+.monster-product-content h5,
+.monster-product-content h6 {
+  color: #073B4C !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+/* Product description */
+.monster-product-content p {
+  color: #164E63 !important;
+  opacity: 1 !important;
+}
+
+/* Product metadata */
+.monster-product-meta,
+.monster-product-meta div,
+.monster-product-meta span {
+  color: #164E63 !important;
+  opacity: 1 !important;
+}
+
+/* Reference / product code */
+.monster-product-meta strong,
+.monster-product-meta b {
+  color: #075985 !important;
+  opacity: 1 !important;
+  font-weight: 800 !important;
+}
+
+/* Top labels */
+.monster-product-top,
+.monster-product-top span,
+.monster-product-top small {
+  color: #075985 !important;
+  opacity: 1 !important;
+}
+
+/* Dosage */
+.monster-dosage,
+.monster-dosage span,
+.monster-dosage p,
+.monster-dosage strong {
+  color: #075985 !important;
+  opacity: 1 !important;
+}
+
+/* Back side */
+.monster-product-back {
+  color: #073B4C !important;
+}
+
+/* Back information */
+.monster-back-info,
+.monster-back-info div,
+.monster-back-info p,
+.monster-back-info span,
+.monster-back-info strong {
+  color: #164E63 !important;
+  opacity: 1 !important;
+}
+
+/* Footer */
+.monster-product-footer,
+.monster-product-footer div,
+.monster-product-footer span,
+.monster-product-footer p {
+  color: #164E63 !important;
+  opacity: 1 !important;
+}
+
+/* Cyan labels stay cyan but become readable */
+.monster-product-inner .catalogue-cyan,
+.monster-product-inner [class*="cyan"] {
+  color: #087F8C !important;
+  opacity: 1 !important;
+}
+
+/* Generic muted text inside product cards */
+.monster-product-inner .muted,
+.monster-product-inner [class*="muted"] {
+  color: #416575 !important;
+  opacity: 1 !important;
+}
+
+/* Remove pale white text from readable content */
+.monster-product-content [style*="color"],
+.monster-product-meta [style*="color"],
+.monster-back-info [style*="color"] {
+  opacity: 1 !important;
+}
+
+/* Important information */
+.monster-product-inner strong,
+.monster-product-inner b {
+  color: #073B4C !important;
+  opacity: 1 !important;
+}
+
+/* Links */
+.monster-product-inner a {
+  color: #075985 !important;
+  opacity: 1 !important;
+}
+
+.monster-product-inner a:hover {
+  color: #0E7490 !important;
+}
+
+/* Inputs */
+.monster-product-inner input,
+.monster-product-inner select,
+.monster-product-inner textarea {
+  color: #073B4C !important;
+  background: #FFFFFF !important;
+}
+
+.monster-product-inner input::placeholder,
+.monster-product-inner textarea::placeholder {
+  color: #527384 !important;
+  opacity: 1 !important;
+}
+
+/* =========================================================
+   HIGH CONTRAST VARIABLES
+   ========================================================= */
+
+:root {
+  --catalogue-text: #073B4C;
+  --catalogue-text-secondary: #164E63;
+  --catalogue-muted: #416575;
+  --catalogue-reference: #075985;
+  --catalogue-cyan: #087F8C;
+  --catalogue-light: #FFFFFF;
+}
+
+
+/* =========================================================
+   PROLINE — PREMIUM MINT + CREAM COLLECTION
+   Warm / Natural / Organic / Premium Hygiene
+   ========================================================= */
+
+:root {
+  --proline-mint: #8FC9A8;
+  --proline-mint-light: #CDE9D7;
+  --proline-mint-dark: #397A5B;
+
+  --proline-green: #2F684C;
+  --proline-green-deep: #183C2B;
+
+  --proline-cream: #FFF4D6;
+  --proline-cream-dark: #F3D98B;
+
+  --proline-gold: #C9A84E;
+
+  --proline-text: #183C2B;
+  --proline-text-soft: #416650;
+}
+
+/* Main catalogue surface */
+.monster-product-inner {
+  color: var(--proline-text) !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 244, 214, 0.98),
+      rgba(205, 233, 215, 0.96)
+    ) !important;
+}
+
+/* Product front */
+.monster-product-front {
+  color: var(--proline-text) !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      #FFF4D6 0%,
+      #E8F4DD 48%,
+      #CDE9D7 100%
+    ) !important;
+}
+
+/* Product title */
+.monster-product-content h1,
+.monster-product-content h2,
+.monster-product-content h3,
+.monster-product-content h4,
+.monster-product-content h5,
+.monster-product-content h6 {
+  color: #183C2B !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+/* Product description */
+.monster-product-content p {
+  color: #416650 !important;
+  opacity: 1 !important;
+}
+
+/* Product reference */
+.monster-product-meta,
+.monster-product-meta div,
+.monster-product-meta span {
+  color: #397A5B !important;
+  opacity: 1 !important;
+}
+
+.monster-product-meta strong,
+.monster-product-meta b {
+  color: #2F684C !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+/* Top category / labels */
+.monster-product-top,
+.monster-product-top span,
+.monster-product-top small {
+  color: #397A5B !important;
+  opacity: 1 !important;
+}
+
+/* Dosage */
+.monster-dosage,
+.monster-dosage span,
+.monster-dosage p,
+.monster-dosage strong {
+  color: #397A5B !important;
+  opacity: 1 !important;
+}
+
+/* Back side */
+.monster-product-back {
+  color: #183C2B !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      #E8F4DD,
+      #CDE9D7
+    ) !important;
+}
+
+/* Back information */
+.monster-back-info,
+.monster-back-info div,
+.monster-back-info p,
+.monster-back-info span {
+  color: #416650 !important;
+  opacity: 1 !important;
+}
+
+/* Important text */
+.monster-product-inner strong,
+.monster-product-inner b {
+  color: #183C2B !important;
+  opacity: 1 !important;
+}
+
+/* Footer */
+.monster-product-footer,
+.monster-product-footer div,
+.monster-product-footer span,
+.monster-product-footer p {
+  color: #397A5B !important;
+  opacity: 1 !important;
+}
+
+/* Mint badges */
+.monster-product-inner [class*="badge"] {
+  color: #2F684C !important;
+  background: rgba(143, 201, 168, 0.38) !important;
+  border-color: rgba(57, 122, 91, 0.28) !important;
+}
+
+/* Cream / gold accents */
+.monster-product-inner [class*="price"],
+.monster-product-inner [class*="Price"] {
+  color: #A17D20 !important;
+  font-weight: 800 !important;
+}
+
+/* Links */
+.monster-product-inner a {
+  color: #397A5B !important;
+}
+
+.monster-product-inner a:hover {
+  color: #183C2B !important;
+}
+
+/* Inputs */
+.monster-product-inner input,
+.monster-product-inner select,
+.monster-product-inner textarea {
+  color: #183C2B !important;
+  background: #FFF4D6 !important;
+  border-color: rgba(57, 122, 91, 0.28) !important;
+}
+
+.monster-product-inner input::placeholder,
+.monster-product-inner textarea::placeholder {
+  color: #66826F !important;
+  opacity: 1 !important;
+}
+
+/* Selection */
+.monster-product-inner ::selection {
+  color: #FFF4D6;
+  background: #397A5B;
+}
+
+/* =========================================================
+   PREMIUM MINT GLOW
+   ========================================================= */
+
+.monster-product-orb {
+  background:
+    radial-gradient(
+      circle,
+      #FFF0B8 0%,
+      #F3D98B 32%,
+      #8FC9A8 70%,
+      transparent 72%
+    ) !important;
+
+  box-shadow:
+    0 0 35px rgba(143, 201, 168, 0.45),
+    0 0 70px rgba(243, 217, 139, 0.25) !important;
+}
+
+
+/* =========================================================
+   PROLINE CATALOGUE — ORCHID BACKGROUND
+   ========================================================= */
+
+.monster-catalogue,
+.catalogue-monster,
+.monster-products,
+.monster-product-grid {
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(214, 181, 229, 0.45),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 85% 75%,
+      rgba(143, 201, 168, 0.30),
+      transparent 35%
+    ),
+    linear-gradient(
+      135deg,
+      #E9DDF0 0%,
+      #EDE3F2 45%,
+      #E3F0E6 100%
+    ) !important;
+}
+
+/* Main catalogue area */
+.monster-product-inner {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(246, 239, 248, 0.96),
+      rgba(226, 241, 230, 0.96)
+    ) !important;
+}
+
+/* Category-colored product glow */
+.monster-product-orb {
+  background:
+    radial-gradient(
+      circle,
+      #FFF0B8 0%,
+      #F3D98B 25%,
+      #8FC9A8 55%,
+      #9B70B8 75%,
+      transparent 76%
+    ) !important;
+}
+
+/* =========================================================
+   CATEGORY IDENTITY
+   ========================================================= */
+
+/* CUISINE — MINT */
+[data-category="cuisine"] {
+  --category-main: #4F8F70;
+  --category-light: #E3F2E8;
+  --category-dark: #356B52;
+}
+
+/* MACHINE — BLUE GREEN */
+[data-category="machine"] {
+  --category-main: #4E9A9A;
+  --category-light: #E3F1F0;
+  --category-dark: #326E70;
+}
+
+/* BUANDERIE — CREAM / GOLD */
+[data-category="buanderie"] {
+  --category-main: #D5B85A;
+  --category-light: #F8F0D2;
+  --category-dark: #8C7628;
+}
+
+/* SANITAIRE — ORCHID */
+[data-category="sanitaire"] {
+  --category-main: #9B70B8;
+  --category-light: #F0E5F5;
+  --category-dark: #68427F;
+}
+
+/* COMMUNS — SAGE */
+[data-category="communs"] {
+  --category-main: #718B68;
+  --category-light: #E8EFE3;
+  --category-dark: #4B6244;
+}
+
+/* PISCINE — TURQUOISE */
+[data-category="piscine"] {
+  --category-main: #3E9FA8;
+  --category-light: #E1F3F3;
+  --category-dark: #287078;
+}
+
+
+/* ============================================================
+   PROLINE — CATEGORY COLOR SYSTEM
+   Premium Mint / Cream / Orchid / Sage / Turquoise
+   ============================================================ */
+
+:root {
+  --proline-cuisine: #4F9A73;
+  --proline-cuisine-light: #DDEFE4;
+  --proline-cuisine-dark: #285C42;
+
+  --proline-machine: #438F92;
+  --proline-machine-light: #DCEDEE;
+  --proline-machine-dark: #286467;
+
+  --proline-buanderie: #C9A84E;
+  --proline-buanderie-light: #F4EAC5;
+  --proline-buanderie-dark: #806B24;
+
+  --proline-sanitaire: #9B70B8;
+  --proline-sanitaire-light: #EDE1F2;
+  --proline-sanitaire-dark: #68427F;
+
+  --proline-communs: #718B68;
+  --proline-communs-light: #E4ECDD;
+  --proline-communs-dark: #4B6244;
+
+  --proline-piscine: #3E9FA8;
+  --proline-piscine-light: #D9EFF0;
+  --proline-piscine-dark: #276E75;
+
+  --proline-text: #183C2B;
+}
+
+
+/* ============================================================
+   MAIN CATALOGUE BACKGROUND
+   NO WHITE DOMINANT BACKGROUND
+   ============================================================ */
+
+.catalogue-monster {
+  background:
+    radial-gradient(
+      circle at 12% 15%,
+      rgba(155,112,184,.20),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 88% 70%,
+      rgba(79,154,115,.20),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      #E9DDF0 0%,
+      #E8E7D9 45%,
+      #DCEEE2 100%
+    ) !important;
+}
+
+
+/* ============================================================
+   EXPLORER HEADER
+   ============================================================ */
+
+.catalogue-filter-label span {
+  color: #285C42 !important;
+  opacity: 1 !important;
+}
+
+.catalogue-filter-label strong {
+  color: #183C2B !important;
+  opacity: 1 !important;
+}
+
+
+/* ============================================================
+   EXPLORER BUTTONS — BASE
+   ============================================================ */
+
+.monster-filters .cat-filter-btn {
+  color: #183C2B !important;
+
+  background: rgba(255,244,214,.72) !important;
+
+  border: 1px solid rgba(57,92,70,.28) !important;
+
+  box-shadow:
+    0 8px 22px rgba(44,73,55,.08);
+
+  backdrop-filter: blur(12px);
+
+  transition:
+    transform .3s cubic-bezier(.16,1,.3,1),
+    color .25s ease,
+    background .25s ease,
+    border-color .25s ease,
+    box-shadow .25s ease;
+}
+
+.monster-filters .cat-filter-btn span {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+.monster-filters .cat-filter-btn small {
+  color: inherit !important;
+  opacity: .85 !important;
+}
+
+
+/* ============================================================
+   TOUT VOIR
+   ============================================================ */
+
+.monster-filters .cat-filter-all {
+  color: #183C2B !important;
+  background: #F3E7C5 !important;
+  border-color: #C9A84E !important;
+}
+
+.monster-filters .cat-filter-all.active {
+  color: #FFF4D6 !important;
+  background: #806B24 !important;
+  border-color: #806B24 !important;
+}
+
+
+/* ============================================================
+   CUISINE — MINT GREEN
+   ============================================================ */
+
+.monster-filters .cat-filter-cuisine {
+  color: #285C42 !important;
+  background: var(--proline-cuisine-light) !important;
+  border-color: rgba(79,154,115,.55) !important;
+}
+
+.monster-filters .cat-filter-cuisine.active,
+.monster-filters .cat-filter-cuisine:hover {
+  color: #FFFFFF !important;
+  background: var(--proline-cuisine) !important;
+  border-color: var(--proline-cuisine) !important;
+}
+
+
+/* ============================================================
+   MACHINE — BLUE GREEN
+   ============================================================ */
+
+.monster-filters .cat-filter-machine {
+  color: #286467 !important;
+  background: var(--proline-machine-light) !important;
+  border-color: rgba(67,143,146,.55) !important;
+}
+
+.monster-filters .cat-filter-machine.active,
+.monster-filters .cat-filter-machine:hover {
+  color: #FFFFFF !important;
+  background: var(--proline-machine) !important;
+  border-color: var(--proline-machine) !important;
+}
+
+
+/* ============================================================
+   BUANDERIE — CREAMY YELLOW
+   ============================================================ */
+
+.monster-filters .cat-filter-buanderie {
+  color: #806B24 !important;
+  background: var(--proline-buanderie-light) !important;
+  border-color: rgba(201,168,78,.65) !important;
+}
+
+.monster-filters .cat-filter-buanderie.active,
+.monster-filters .cat-filter-buanderie:hover {
+  color: #FFFFFF !important;
+  background: var(--proline-buanderie-dark) !important;
+  border-color: var(--proline-buanderie-dark) !important;
+}
+
+
+/* ============================================================
+   SANITAIRE — ORCHID
+   ============================================================ */
+
+.monster-filters .cat-filter-sanitaire {
+  color: #68427F !important;
+  background: var(--proline-sanitaire-light) !important;
+  border-color: rgba(155,112,184,.60) !important;
+}
+
+.monster-filters .cat-filter-sanitaire.active,
+.monster-filters .cat-filter-sanitaire:hover {
+  color: #FFFFFF !important;
+  background: var(--proline-sanitaire) !important;
+  border-color: var(--proline-sanitaire) !important;
+}
+
+
+/* ============================================================
+   COMMUNS — SAGE
+   ============================================================ */
+
+.monster-filters .cat-filter-communs {
+  color: #4B6244 !important;
+  background: var(--proline-communs-light) !important;
+  border-color: rgba(113,139,104,.60) !important;
+}
+
+.monster-filters .cat-filter-communs.active,
+.monster-filters .cat-filter-communs:hover {
+  color: #FFFFFF !important;
+  background: var(--proline-communs) !important;
+  border-color: var(--proline-communs) !important;
+}
+
+
+/* ============================================================
+   PISCINE — TURQUOISE
+   ============================================================ */
+
+.monster-filters .cat-filter-piscine {
+  color: #276E75 !important;
+  background: var(--proline-piscine-light) !important;
+  border-color: rgba(62,159,168,.60) !important;
+}
+
+.monster-filters .cat-filter-piscine.active,
+.monster-filters .cat-filter-piscine:hover {
+  color: #FFFFFF !important;
+  background: var(--proline-piscine) !important;
+  border-color: var(--proline-piscine) !important;
+}
+
+
+/* ============================================================
+   PRODUCT CARDS
+   EACH REFERENCE GETS ITS CATEGORY COLOR
+   ============================================================ */
+
+.monster-product {
+  --product-color: #4F9A73;
+  --product-light: #DDEFE4;
+  --product-dark: #285C42;
+}
+
+
+/* CUISINE */
+.monster-product[data-category="cuisine"] {
+  --product-color: #4F9A73;
+  --product-light: #DDEFE4;
+  --product-dark: #285C42;
+}
+
+
+/* MACHINE */
+.monster-product[data-category="machine"] {
+  --product-color: #438F92;
+  --product-light: #DCEDEE;
+  --product-dark: #286467;
+}
+
+
+/* BUANDERIE */
+.monster-product[data-category="buanderie"] {
+  --product-color: #C9A84E;
+  --product-light: #F4EAC5;
+  --product-dark: #806B24;
+}
+
+
+/* SANITAIRE */
+.monster-product[data-category="sanitaire"] {
+  --product-color: #9B70B8;
+  --product-light: #EDE1F2;
+  --product-dark: #68427F;
+}
+
+
+/* COMMUNS */
+.monster-product[data-category="communs"] {
+  --product-color: #718B68;
+  --product-light: #E4ECDD;
+  --product-dark: #4B6244;
+}
+
+
+/* PISCINE */
+.monster-product[data-category="piscine"] {
+  --product-color: #3E9FA8;
+  --product-light: #D9EFF0;
+  --product-dark: #276E75;
+}
+
+
+/* ============================================================
+   PRODUCT CATEGORY LABEL
+   ============================================================ */
+
+.monster-product-category {
+  color: var(--product-dark) !important;
+  opacity: 1 !important;
+  font-weight: 700 !important;
+}
+
+
+/* ============================================================
+   PRODUCT CODE
+   ============================================================ */
+
+.monster-product-code {
+  color: var(--product-dark) !important;
+  opacity: 1 !important;
+  font-weight: 800 !important;
+}
+
+
+/* ============================================================
+   REFERENCE — CATEGORY COLOR
+   ============================================================ */
+
+.monster-product-meta strong {
+  color: var(--product-dark) !important;
+  opacity: 1 !important;
+  font-weight: 800 !important;
+}
+
+
+/* RÉFÉRENCE label */
+.monster-product-meta small {
+  color: var(--product-color) !important;
+  opacity: 1 !important;
+}
+
+
+/* ============================================================
+   CATEGORY ACCENT ON PRODUCT CARD
+   ============================================================ */
+
+.monster-product-inner {
+  border-top: 3px solid var(--product-color) !important;
+}
+
+
+/* Category-colored orb */
+.monster-product-orb {
+  background:
+    radial-gradient(
+      circle,
+      var(--product-light) 0%,
+      var(--product-color) 48%,
+      var(--product-dark) 72%,
+      transparent 74%
+    ) !important;
+
+  box-shadow:
+    0 0 35px color-mix(
+      in srgb,
+      var(--product-color) 38%,
+      transparent
+    ) !important;
+}
+
+
+/* ============================================================
+   PRODUCT TEXT
+   ============================================================ */
+
+.monster-product-content h3 {
+  color: #183C2B !important;
+  opacity: 1 !important;
+}
+
+.monster-product-content p {
+  color: #416650 !important;
+  opacity: 1 !important;
+}
+
+.monster-product-kicker {
+  color: var(--product-dark) !important;
+  opacity: 1 !important;
+}
+
+
+/* ============================================================
+   BACK SIDE
+   ============================================================ */
+
+.monster-product-back {
+  border-top: 3px solid var(--product-color) !important;
+}
+
+.monster-back-info span,
+.monster-dosage > span {
+  color: var(--product-color) !important;
+  opacity: 1 !important;
+}
+
+.monster-back-info strong,
+.monster-dosage strong {
+  color: var(--product-dark) !important;
+  opacity: 1 !important;
+}
+
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.monster-product-footer {
+  color: var(--product-dark) !important;
+}
+
+.monster-product-footer span {
+  color: var(--product-dark) !important;
+  opacity: 1 !important;
+}
+
+
+/* ============================================================
+   NO PALE WHITE TEXT ON PRODUCT CONTENT
+   ============================================================ */
+
+.monster-product-content,
+.monster-product-meta,
+.monster-product-footer,
+.monster-back-info,
+.monster-dosage {
+  text-shadow: none !important;
+}
+
+
+/* =========================================================
+   PROLINE — CATEGORY COLOR OVERRIDE
+   Lisibilite + identite couleur
+   ========================================================= */
+
+/* Base catalogue — fond orchidée profond */
+.catalogue-monster {
+  --catalogue-bg: #4B315F;
+  --catalogue-text: #173B3A;
+  --catalogue-text-strong: #102E2D;
+  --catalogue-muted: #496866;
+}
+
+/* ---------------------------------------------------------
+   CATEGORY VARIABLES
+   --------------------------------------------------------- */
+
+/* CUISINE — VERT MENTHE */
+.monster-product-cuisine,
+[data-category="cuisine"] {
+  --category-main: #63B79F;
+  --category-light: #D8F1E7;
+  --category-dark: #245E50;
+  --category-text: #123F36;
+}
+
+/* MACHINE — BLEU TURQUOISE */
+.monster-product-machine,
+[data-category="machine"] {
+  --category-main: #279FA8;
+  --category-light: #D5F1F2;
+  --category-dark: #17636A;
+  --category-text: #103F44;
+}
+
+/* BUANDERIE — JAUNE CRÉMEUX */
+.monster-product-buanderie,
+[data-category="buanderie"] {
+  --category-main: #D6B85A;
+  --category-light: #F8EEC9;
+  --category-dark: #806B22;
+  --category-text: #4C3D0C;
+}
+
+/* SANITAIRE — ORCHIDÉE */
+.monster-product-sanitaire,
+[data-category="sanitaire"] {
+  --category-main: #A875C2;
+  --category-light: #EBDDF2;
+  --category-dark: #653E7D;
+  --category-text: #3F2550;
+}
+
+/* ESPACES COMMUNS — VERT SAUGE */
+.monster-product-communs,
+[data-category="communs"] {
+  --category-main: #7D9B72;
+  --category-light: #E1EAD9;
+  --category-dark: #4B6543;
+  --category-text: #30452C;
+}
+
+/* PISCINE — TURQUOISE */
+.monster-product-piscine,
+[data-category="piscine"] {
+  --category-main: #38B7B2;
+  --category-light: #D5F3F0;
+  --category-dark: #176E6B;
+  --category-text: #124744;
+}
+
+
+/* =========================================================
+   PRODUCT CARDS
+   ========================================================= */
+
+.monster-product {
+  color: var(--category-text, #173B3A);
+}
+
+.monster-product .monster-product-category {
+  color: var(--category-dark, #245E50) !important;
+  font-weight: 700;
+  opacity: 1 !important;
+}
+
+.monster-product .monster-product-code {
+  color: var(--category-dark, #245E50) !important;
+  opacity: 1 !important;
+}
+
+.monster-product h3 {
+  color: var(--category-text, #173B3A) !important;
+}
+
+.monster-product p {
+  color: var(--category-text, #173B3A) !important;
+  opacity: .9 !important;
+}
+
+.monster-product-meta small {
+  color: var(--category-dark, #245E50) !important;
+  opacity: 1 !important;
+}
+
+.monster-product-meta strong {
+  color: var(--category-text, #173B3A) !important;
+}
+
+
+/* =========================================================
+   EXPLORER / FILTRES
+   ========================================================= */
+
+.catalogue-filter-label span {
+  color: #EBDDF2 !important;
+  opacity: 1 !important;
+  font-weight: 700;
+}
+
+.catalogue-filter-label strong {
+  color: #FFFFFF !important;
+  opacity: 1 !important;
+}
+
+
+/* Boutons filtres : texte toujours lisible */
+.monster-filters .cat-filter-btn {
+  color: #F7F3F8 !important;
+  border-color: rgba(255,255,255,.35) !important;
+  background: rgba(35,20,48,.72) !important;
+  font-weight: 700;
+}
+
+.monster-filters .cat-filter-btn span {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+.monster-filters .cat-filter-btn small {
+  color: #EBDDF2 !important;
+  opacity: 1 !important;
+}
+
+
+/* ---------------------------------------------------------
+   Couleur de chaque bouton
+   --------------------------------------------------------- */
+
+.monster-filters .cat-filter-btn:nth-child(1) {
+  border-color: #B890C9 !important;
+}
+
+.monster-filters .cat-filter-btn:nth-child(2) {
+  border-color: #63B79F !important;
+}
+
+.monster-filters .cat-filter-btn:nth-child(3) {
+  border-color: #279FA8 !important;
+}
+
+.monster-filters .cat-filter-btn:nth-child(4) {
+  border-color: #D6B85A !important;
+}
+
+.monster-filters .cat-filter-btn:nth-child(5) {
+  border-color: #A875C2 !important;
+}
+
+.monster-filters .cat-filter-btn:nth-child(6) {
+  border-color: #7D9B72 !important;
+}
+
+.monster-filters .cat-filter-btn:nth-child(7) {
+  border-color: #38B7B2 !important;
+}
+
+
+/* Bouton actif */
+.monster-filters .cat-filter-btn.active {
+  color: #FFFFFF !important;
+  background: linear-gradient(
+    135deg,
+    rgba(70,45,90,.98),
+    rgba(30,75,73,.95)
+  ) !important;
+  border-color: #D8F1E7 !important;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.12),
+    0 8px 30px rgba(0,0,0,.22);
+}
+
+
+/* Hover */
+.monster-filters .cat-filter-btn:hover {
+  color: #FFFFFF !important;
+  background: rgba(70,45,90,.95) !important;
+}
+
+
+/* =========================================================
+   CATEGORY ACCENTS
+   ========================================================= */
+
+.monster-product .monster-product-orb {
+  background:
+    radial-gradient(
+      circle,
+      var(--category-main) 0%,
+      transparent 68%
+    ) !important;
+}
+
+.monster-product .monster-product-top {
+  border-color: color-mix(
+    in srgb,
+    var(--category-main) 45%,
+    transparent
+  ) !important;
+}
+
+.monster-product .monster-product-footer {
+  color: var(--category-dark, #245E50) !important;
+}
+
+.monster-product .monster-product-footer b {
+  color: var(--category-main) !important;
+}
+
+
+/* =========================================================
+   BACK OF PRODUCT CARD
+   ========================================================= */
+
+.monster-product-back h3 {
+  color: var(--category-text, #173B3A) !important;
+}
+
+.monster-product-back .monster-product-kicker {
+  color: var(--category-dark, #245E50) !important;
+}
+
+.monster-back-info span,
+.monster-dosage span {
+  color: var(--category-dark, #245E50) !important;
+  opacity: 1 !important;
+}
+
+.monster-back-info strong,
+.monster-dosage strong {
+  color: var(--category-text, #173B3A) !important;
+}
+
+.monster-return {
+  color: var(--category-text, #173B3A) !important;
+  border-color: var(--category-main, #63B79F) !important;
+}
+
+
+/* =========================================================
+   PROLINE — CATEGORY COLOR OVERRIDE
+   Lisibilite + identite couleur
+   ========================================================= */
+
+/* Base catalogue — fond orchidée profond */
+.catalogue-monster {
+  --catalogue-bg: #4B315F;
+  --catalogue-text: #173B3A;
+  --catalogue-text-strong: #102E2D;
+  --catalogue-muted: #496866;
+}
+
+/* ---------------------------------------------------------
+   CATEGORY VARIABLES
+   --------------------------------------------------------- */
+
+/* CUISINE — VERT MENTHE */
+.monster-product-cuisine,
+[data-category="cuisine"] {
+  --category-main: #63B79F;
+  --category-light: #D8F1E7;
+  --category-dark: #245E50;
+  --category-text: #123F36;
+}
+
+/* MACHINE — BLEU TURQUOISE */
+.monster-product-machine,
+[data-category="machine"] {
+  --category-main: #279FA8;
+  --category-light: #D5F1F2;
+  --category-dark: #17636A;
+  --category-text: #103F44;
+}
+
+/* BUANDERIE — JAUNE CRÉMEUX */
+.monster-product-buanderie,
+[data-category="buanderie"] {
+  --category-main: #D6B85A;
+  --category-light: #F8EEC9;
+  --category-dark: #806B22;
+  --category-text: #4C3D0C;
+}
+
+/* SANITAIRE — ORCHIDÉE */
+.monster-product-sanitaire,
+[data-category="sanitaire"] {
+  --category-main: #A875C2;
+  --category-light: #EBDDF2;
+  --category-dark: #653E7D;
+  --category-text: #3F2550;
+}
+
+/* ESPACES COMMUNS — VERT SAUGE */
+.monster-product-communs,
+[data-category="communs"] {
+  --category-main: #7D9B72;
+  --category-light: #E1EAD9;
+  --category-dark: #4B6543;
+  --category-text: #30452C;
+}
+
+/* PISCINE — TURQUOISE */
+.monster-product-piscine,
+[data-category="piscine"] {
+  --category-main: #38B7B2;
+  --category-light: #D5F3F0;
+  --category-dark: #176E6B;
+  --category-text: #124744;
+}
+
+
+/* =========================================================
+   PRODUCT CARDS
+   ========================================================= */
+
+.monster-product {
+  color: var(--category-text, #173B3A);
+}
+
+.monster-product .monster-product-category {
+  color: var(--category-dark, #245E50) !important;
+  font-weight: 700;
+  opacity: 1 !important;
+}
+
+.monster-product .monster-product-code {
+  color: var(--category-dark, #245E50) !important;
+  opacity: 1 !important;
+}
+
+.monster-product h3 {
+  color: var(--category-text, #173B3A) !important;
+}
+
+.monster-product p {
+  color: var(--category-text, #173B3A) !important;
+  opacity: .9 !important;
+}
+
+.monster-product-meta small {
+  color: var(--category-dark, #245E50) !important;
+  opacity: 1 !important;
+}
+
+.monster-product-meta strong {
+  color: var(--category-text, #173B3A) !important;
+}
+
+
+/* =========================================================
+   EXPLORER / FILTRES
+   ========================================================= */
+
+.catalogue-filter-label span {
+  color: #EBDDF2 !important;
+  opacity: 1 !important;
+  font-weight: 700;
+}
+
+.catalogue-filter-label strong {
+  color: #FFFFFF !important;
+  opacity: 1 !important;
+}
+
+
+/* Boutons filtres : texte toujours lisible */
+.monster-filters .cat-filter-btn {
+  color: #F7F3F8 !important;
+  border-color: rgba(255,255,255,.35) !important;
+  background: rgba(35,20,48,.72) !important;
+  font-weight: 700;
+}
+
+.monster-filters .cat-filter-btn span {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+.monster-filters .cat-filter-btn small {
+  color: #EBDDF2 !important;
+  opacity: 1 !important;
+}
+
+
+/* ---------------------------------------------------------
+   Couleur de chaque bouton
+   --------------------------------------------------------- */
+
+.monster-filters .cat-filter-btn:nth-child(1) {
+  border-color: #B890C9 !important;
+}
+
+.monster-filters .cat-filter-btn:nth-child(2) {
+  border-color: #63B79F !important;
+}
+
+.monster-filters .cat-filter-btn:nth-child(3) {
+  border-color: #279FA8 !important;
+}
+
+.monster-filters .cat-filter-btn:nth-child(4) {
+  border-color: #D6B85A !important;
+}
+
+.monster-filters .cat-filter-btn:nth-child(5) {
+  border-color: #A875C2 !important;
+}
+
+.monster-filters .cat-filter-btn:nth-child(6) {
+  border-color: #7D9B72 !important;
+}
+
+.monster-filters .cat-filter-btn:nth-child(7) {
+  border-color: #38B7B2 !important;
+}
+
+
+/* Bouton actif */
+.monster-filters .cat-filter-btn.active {
+  color: #FFFFFF !important;
+  background: linear-gradient(
+    135deg,
+    rgba(70,45,90,.98),
+    rgba(30,75,73,.95)
+  ) !important;
+  border-color: #D8F1E7 !important;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.12),
+    0 8px 30px rgba(0,0,0,.22);
+}
+
+
+/* Hover */
+.monster-filters .cat-filter-btn:hover {
+  color: #FFFFFF !important;
+  background: rgba(70,45,90,.95) !important;
+}
+
+
+/* =========================================================
+   CATEGORY ACCENTS
+   ========================================================= */
+
+.monster-product .monster-product-orb {
+  background:
+    radial-gradient(
+      circle,
+      var(--category-main) 0%,
+      transparent 68%
+    ) !important;
+}
+
+.monster-product .monster-product-top {
+  border-color: color-mix(
+    in srgb,
+    var(--category-main) 45%,
+    transparent
+  ) !important;
+}
+
+.monster-product .monster-product-footer {
+  color: var(--category-dark, #245E50) !important;
+}
+
+.monster-product .monster-product-footer b {
+  color: var(--category-main) !important;
+}
+
+
+/* =========================================================
+   BACK OF PRODUCT CARD
+   ========================================================= */
+
+.monster-product-back h3 {
+  color: var(--category-text, #173B3A) !important;
+}
+
+.monster-product-back .monster-product-kicker {
+  color: var(--category-dark, #245E50) !important;
+}
+
+.monster-back-info span,
+.monster-dosage span {
+  color: var(--category-dark, #245E50) !important;
+  opacity: 1 !important;
+}
+
+.monster-back-info strong,
+.monster-dosage strong {
+  color: var(--category-text, #173B3A) !important;
+}
+
+.monster-return {
+  color: var(--category-text, #173B3A) !important;
+  border-color: var(--category-main, #63B79F) !important;
+}
+
+
+/* =========================================================
+   PROLINE — NEW CATEGORY PALETTES
+   Inspired by the provided aesthetic color reference
+   IMPORTANT: color-only override — no layout modification
+   ========================================================= */
+
+
+/* =========================================================
+   01 — CUISINE
+   SOFT BLUE + WHITE
+   ========================================================= */
+
+[data-category="cuisine"] {
+  --category-main: #8DB4D6;
+  --category-light: #D6E6F2;
+  --category-surface: #F2F7FB;
+  --category-dark: #41657F;
+  --category-text: #243B4A;
+}
+
+.monster-product-cuisine {
+  --category-main: #8DB4D6;
+  --category-light: #D6E6F2;
+  --category-surface: #F2F7FB;
+  --category-dark: #41657F;
+  --category-text: #243B4A;
+}
+
+
+/* =========================================================
+   02 — MACHINE
+   BLACK + SILVER
+   ========================================================= */
+
+[data-category="machine"] {
+  --category-main: #8E8E8E;
+  --category-light: #E6E6E6;
+  --category-surface: #2B2B2B;
+  --category-dark: #0D0D0D;
+  --category-text: #F2F2F2;
+}
+
+.monster-product-machine {
+  --category-main: #8E8E8E;
+  --category-light: #E6E6E6;
+  --category-surface: #2B2B2B;
+  --category-dark: #0D0D0D;
+  --category-text: #F2F2F2;
+}
+
+
+/* =========================================================
+   03 — BUANDERIE
+   BEIGE + BROWN
+   ========================================================= */
+
+[data-category="buanderie"] {
+  --category-main: #A67C52;
+  --category-light: #E6D5C1;
+  --category-surface: #F3E9DD;
+  --category-dark: #6B4E3D;
+  --category-text: #4C382C;
+}
+
+.monster-product-buanderie {
+  --category-main: #A67C52;
+  --category-light: #E6D5C1;
+  --category-surface: #F3E9DD;
+  --category-dark: #6B4E3D;
+  --category-text: #4C382C;
+}
+
+
+/* =========================================================
+   04 — SANITAIRE
+   SAGE + CREAM
+   ========================================================= */
+
+[data-category="sanitaire"] {
+  --category-main: #A8B5AA;
+  --category-light: #C7D3C1;
+  --category-surface: #F2F5EF;
+  --category-dark: #5F7162;
+  --category-text: #344238;
+}
+
+.monster-product-sanitaire {
+  --category-main: #A8B5AA;
+  --category-light: #C7D3C1;
+  --category-surface: #F2F5EF;
+  --category-dark: #5F7162;
+  --category-text: #344238;
+}
+
+
+/* =========================================================
+   05 — ESPACES COMMUNS
+   NAVY + WHITE
+   ========================================================= */
+
+[data-category="communs"] {
+  --category-main: #A7B6C0;
+  --category-light: #DCE4E8;
+  --category-surface: #F7F8F8;
+  --category-dark: #0F3E52;
+  --category-text: #1E2F4F;
+}
+
+.monster-product-communs {
+  --category-main: #A7B6C0;
+  --category-light: #DCE4E8;
+  --category-surface: #F7F8F8;
+  --category-dark: #0F3E52;
+  --category-text: #1E2F4F;
+}
+
+
+/* =========================================================
+   06 — PISCINE
+   DUSTY PINK + GRAY
+   ========================================================= */
+
+[data-category="piscine"] {
+  --category-main: #D7B1B7;
+  --category-light: #EAC5CC;
+  --category-surface: #F7EEEE;
+  --category-dark: #6F6F6F;
+  --category-text: #4A4A4A;
+}
+
+.monster-product-piscine {
+  --category-main: #D7B1B7;
+  --category-light: #EAC5CC;
+  --category-surface: #F7EEEE;
+  --category-dark: #6F6F6F;
+  --category-text: #4A4A4A;
+}
+
+
+/* =========================================================
+   PRODUCT TEXT
+   ========================================================= */
+
+.monster-product {
+  color: var(--category-text) !important;
+}
+
+.monster-product h3 {
+  color: var(--category-text) !important;
+}
+
+.monster-product p {
+  color: var(--category-text) !important;
+  opacity: .92 !important;
+}
+
+.monster-product-code,
+.monster-product-category {
+  color: var(--category-dark) !important;
+  opacity: 1 !important;
+}
+
+.monster-product-meta small {
+  color: var(--category-dark) !important;
+  opacity: 1 !important;
+}
+
+.monster-product-meta strong {
+  color: var(--category-text) !important;
+}
+
+
+/* =========================================================
+   CATEGORY ORB / ACCENT
+   ========================================================= */
+
+.monster-product-orb {
+  background:
+    radial-gradient(
+      circle,
+      var(--category-main) 0%,
+      var(--category-light) 35%,
+      transparent 72%
+    ) !important;
+}
+
+.monster-product-footer {
+  color: var(--category-dark) !important;
+}
+
+.monster-product-footer b {
+  color: var(--category-main) !important;
+}
+
+
+/* =========================================================
+   PRODUCT BACK
+   ========================================================= */
+
+.monster-product-back h3 {
+  color: var(--category-text) !important;
+}
+
+.monster-product-back .monster-product-kicker {
+  color: var(--category-dark) !important;
+}
+
+.monster-back-info span,
+.monster-dosage span {
+  color: var(--category-dark) !important;
+  opacity: 1 !important;
+}
+
+.monster-back-info strong,
+.monster-dosage strong {
+  color: var(--category-text) !important;
+}
+
+.monster-return {
+  color: var(--category-text) !important;
+  border-color: var(--category-main) !important;
+}
+
+
+/* =========================================================
+   EXPLORER / FILTERS
+   ========================================================= */
+
+.catalogue-filter-label span {
+  color: #E6D5C1 !important;
+  opacity: 1 !important;
+}
+
+.catalogue-filter-label strong {
+  color: #FFFFFF !important;
+  opacity: 1 !important;
+}
+
+.monster-filters .cat-filter-btn {
+  color: #243B4A !important;
+  background: #F2F5EF !important;
+  border-color: #A8B5AA !important;
+}
+
+.monster-filters .cat-filter-btn span {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+.monster-filters .cat-filter-btn small {
+  color: #5F7162 !important;
+  opacity: 1 !important;
+}
+
+
+/* =========================================================
+   INDIVIDUAL FILTER COLORS
+   ========================================================= */
+
+/* Tout voir */
+.monster-filters .cat-filter-btn:nth-child(1) {
+  background: #F7F8F8 !important;
+  color: #1E2F4F !important;
+  border-color: #A7B6C0 !important;
+}
+
+/* Cuisine */
+.monster-filters .cat-filter-btn:nth-child(2) {
+  background: #F2F7FB !important;
+  color: #41657F !important;
+  border-color: #8DB4D6 !important;
+}
+
+/* Machine */
+.monster-filters .cat-filter-btn:nth-child(3) {
+  background: #E6E6E6 !important;
+  color: #0D0D0D !important;
+  border-color: #8E8E8E !important;
+}
+
+/* Buanderie */
+.monster-filters .cat-filter-btn:nth-child(4) {
+  background: #F3E9DD !important;
+  color: #6B4E3D !important;
+  border-color: #A67C52 !important;
+}
+
+/* Sanitaire */
+.monster-filters .cat-filter-btn:nth-child(5) {
+  background: #F2F5EF !important;
+  color: #344238 !important;
+  border-color: #A8B5AA !important;
+}
+
+/* Espaces Communs */
+.monster-filters .cat-filter-btn:nth-child(6) {
+  background: #DCE4E8 !important;
+  color: #0F3E52 !important;
+  border-color: #1E2F4F !important;
+}
+
+/* Piscine */
+.monster-filters .cat-filter-btn:nth-child(7) {
+  background: #F7EEEE !important;
+  color: #4A4A4A !important;
+  border-color: #D7B1B7 !important;
+}
+
+
+/* =========================================================
+   ACTIVE FILTER
+   ========================================================= */
+
+.monster-filters .cat-filter-btn.active {
+  color: #FFFFFF !important;
+  background: #1E2F4F !important;
+  border-color: #A7B6C0 !important;
+  opacity: 1 !important;
+}
+
+
+/* =========================================================
+   HOVER
+   ========================================================= */
+
+.monster-filters .cat-filter-btn:hover {
+  color: #FFFFFF !important;
+  background: #0F3E52 !important;
+  border-color: #A7B6C0 !important;
+}
+
