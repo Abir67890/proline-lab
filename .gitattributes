@@ -1,4 +1,4 @@
-# PROLINE LAB - TEXT UTF-8
+﻿# PROLINE LAB - TEXT UTF-8
 *.ts text eol=lf
 *.tsx text eol=lf
 *.js text eol=lf
